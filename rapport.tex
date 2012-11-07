@@ -1,0 +1,110 @@
+\documentclass[a4paper]{article}
+
+\usepackage[francais,english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\usepackage[]{fullpage}
+
+\makeatletter
+\def\thickhrulefill{\leavevmode \leaders \hrule height 1pt\hfill \kern \z@}
+\def\maketitle{%
+  \null
+  \thispagestyle{empty}%
+  \vskip 1cm
+  \begin{flushright}
+        \normalfont\Large\@author
+  \end{flushright}
+  \vfil
+  \hrule height 2pt
+  \par
+  \begin{center}
+        \huge \strut \@title \par
+  \end{center}
+  \hrule height 2pt
+  \par
+  \vfil
+  \vfil
+  \null
+\begin{center}
+\Huge{Placement constraints for a better QoS in clouds}
+\end{center}
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[scale=.45]{imgs/cloud.png}
+\end{figure}
+\vfil
+\begin{figure}[!ht]
+        \centering
+        \begin{minipage}[c]{.46\linewidth}
+                \includegraphics[scale=.3]{imgs/inria.png}
+        \end{minipage}
+        \begin{minipage}[c]{.2\linewidth}
+                \includegraphics[scale=.5]{imgs/polytech.png}
+        \end{minipage}
+\end{figure}
+\vfil
+\begin{description}
+        \item[Entreprise] INRIA
+        \item[Lieu] Sophia-Antipolis, France
+        \item[Responsable] Fabien Hermenier, équipe OASIS,
+        	\href{mailto:fabien.hermenier@unice.fr}{fabien.hermenier@unice.fr}
+\end{description}
+  \cleardoublepage
+  }
+\makeatother
+\author{Mathieu Bivert, CSSR, \href{mailto:bivert@essi.fr}{bivert@essi.fr}}
+\title{PFE: Description of work}
+
+\begin{document}
+\maketitle
+
+\selectlanguage{francais}
+\begin{abstract}
+Blablabla français
+\end{abstract}
+
+\selectlanguage{english}
+\begin{abstract}
+Blablabla english
+\end{abstract}
+
+\tableofcontents
+\section{Description du projet}
+\subsection{Contexte de travail}
+\subsection{Motivations}
+\subsection{Défis}
+\subsection{Objectifs}
+\subsection{Scénarios}
+\subsection{Critères de succès}
+
+\section{État de l'art}
+\subsection{Description générale}
+\subsection{foo}
+\subsection{bar}
+
+\section{Méthodologie et planification}
+\subsection{Stratégie générale}
+\subsection{Découpage en lots}
+\subsection{Plannification}
+\subsection{Livrables associés au projet}
+\subsection{Jalons}
+
+\section{Description de la mise en œuvre du projet}
+\subsection{Interdépendance des lots et t\^aches}
+\subsection{Description des lots}
+\subsection{Résumé de l'effort}
+\subsection{Gestion du risque}
+
+\section{Participants}
+\subsection{Mathieu Bivert - CSSR}
+\subsection{Fabien Hermenier - OASIS/INRIA}
+
+\newpage
+\bibliographystyle{alpha}
+\bibliography{docs}
+
+\end{document}
+
