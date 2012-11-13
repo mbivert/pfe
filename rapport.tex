@@ -47,16 +47,16 @@
 \end{figure}
 \vfil
 \begin{description}
-        \item[Entreprise] INRIA
+        \item[Entreprise] Université de Nice-Sophia Antipolis (INRIA)
         \item[Lieu] Sophia-Antipolis, France
         \item[Responsable] Fabien Hermenier, équipe OASIS,
         	\href{mailto:fabien.hermenier@unice.fr}{fabien.hermenier@unice.fr}
 \end{description}
-  \cleardoublepage
-  }
+\cleardoublepage
+}
 \makeatother
 \author{Mathieu Bivert, CSSR, \href{mailto:bivert@essi.fr}{bivert@essi.fr}}
-\title{PFE: Cahier des charges}
+\title{PFE: Cahier des charges (DOW)}
 
 \begin{document}
 \maketitle
@@ -75,16 +75,60 @@ Blablabla english
 \newpage
 \section{Description du projet}
 \subsection{Contexte de travail}
-Les clouds (Amazon EC2, Microsoft Azure, etc.) proposent à leurs clients
-un accès à une infrastructure informatique. Une entreprise peut ainsi
-déléguer une grande partie de l'administration et de son matériel sur
-un cloud, ce qui lui permet d'avoir une garantie quant-à la qualité du
-service fournis, tout en réduisant les coûts.
+Le monde industriel étant de plus en plus informatisé, la qualité des
+réseaux s'améliorant, les sociétés informatiques tendent à ne vendre plus
+de logiciels et de matériels mais louent des structures informatiques.
 
-Afin de rentabiliser au mieux le matériel, les fournisseurs de clouds
-utilisent généralement la virtualisation : un même serveur physique
-peut ainsi héberger plusieurs systèmes virtuels, fournissant des services
-quelconques (emails, serveurs web, accès à un OS complet, etc.).
+Les entreprises de services informatiques sont spécialisées dans la
+maintenance de ces structures, donc par exemple plus performante
+qu'une société de l'industrie automobile. Celle-ci peut donc choisir de
+déporter donc la charge et paye pour une assurance sur la qualité du
+service (QoS).
+
+Plusieurs types d'entreprises existent selon le service qu'elles
+proposent:
+\begin{description}
+	\item[SaaS] Software As A Service;
+	\item[PaaS] Platform As A Service;
+	\item[IaaS] Infrastructure As A Service;
+	\item[DaaS] Data As A Service;
+	\item[] $\ldots$
+\end{description}
+
+En particulier, un cloud \textit{IAAS} fournit à l'utilisateur l'accès
+à un ensemble de systèmes d'exploitations. Ces derniers sont très
+souvent virtualisés, ce qui présente l'avantage de pouvoir faire tourner
+plusieurs OS sur un même serveur physique. Par exemple, la figure
+\ref{hubertfxen} montre l'hyperviseur \textit{Xen} en train de faire
+tourner, en plus d'un dom$0$ sous NetBSD, un FreeBSD, deux NetBSDs et
+une Debian:
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.2]{imgs/hubertf-xen.png}
+	\caption{\label{hubertfxen} Virtualisation avec Xen}
+\end{figure}
+
+La virtualisation a plusieurs avantages:
+\begin{itemize}
+	\item sur une application dites $n$-tiers, il est possible
+	de placer chaque tiers sur une VM, et éventuellement d'en faire
+	des duplications, ce qui améliore la robustesse de l'application;
+	\item l'admninistration et la gestion des machines est simplifiée :
+	il y a moins de hardware, donc moins de maintenance physique;
+	\item chaque application peut être répartie sur une VM différente.
+	Ainsi, si une application est compromise, elle a moins de chances
+	de pouvoir compromettre d'autres applications que si elles étaient
+	toutes lancées sur une même machine physique.
+	\item utilisation plus performante du matériel : on est plus dans
+	le cas où dans une entreprise, des dizaines de postes de Bureau
+	\og assez \fg puissants sont tous utilisés en même temps à quelques
+	dixième de leur capacité totale;
+	\item $\ldots$
+\end{itemize}
+
+Une problématique pour les gestionnaires d'IAAS est donc de pouvoir placer
+correctement un ensemble donné de VMs $\mathcal{V}$ sur un ensemble de
+serveurs physiques $\mathcal{N}$.
 
 \subsection{Motivations}
 La question de la répartition des machines virtuelles sur les machines
@@ -98,6 +142,11 @@ physiques se pose alors pour des raisons diverses et variées:
 		client traitant des données sensibles (eg. données bancaires)
 		de se retrouver au même endroit qu'un programme d'un
 		autre client;
+	\item[évolution des besoins] où au cours d'un certain intervalle de
+		temps, les besoins en puissance de calcul d'une entreprise
+		peuvent augmenter (suite à une plus grande popularité par
+		exemple), ou encore, augmentation brusque et irrégulière
+		de la charge à des heures de pointes;
 	\item[économie d'énergie] où il peut être avantageux de réduire
 		le nombre de serveurs physiques allumés, pour maximiser
 		le rendement des autres machines physiques du cloud;
@@ -132,47 +181,18 @@ satisfaisante.
 
 Le dernier point est celui sur lequel se porte ce projet.
 \subsection{Scénarios}
-XXX diagramme.
-% \begin{figure}[!ht]
-%         \centering
-%         \includegraphics[scale=.3]{imgs/cloud.png}
-% 	\caption{\label{usecase} Exemple de changement de système de virtualisation}
-% \end{figure}
-\begin{verbatim}
-    |
-    |               _____________
-    |              |  VM2 (Xen)  |
-    |              |_____________|
-    |              |  VM1 (Xen)  |
- N4 |______________|_____________|
-    |   VM5 (Xen)                |
-    |____________________________|
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[scale=.3]{imgs/vmreconf.png}
+	\caption{\label{usecase} Exemple de changement de système de virtualisation. En vert des VMs Xen, en cyan une VM VMWare}
+\end{figure}
 
-    |
- N3 |____________
-    |  VM4 (VMW) |  offline
-    |____________|
-
-    |_____________
- N2 |             |
-    |  VM3 (VMW)  | offline
-    |_____________|
-
-    |
-    |               ______________
-    |____________  |  VM4 (VMW)   |
-    |  VM2 (Xen) |o|______________|
- N1 |____________|f|              |
-    |  VM1 (Xen) |f|  VM3 (VMW)   |
-    |____________|_|______________|
-
-\end{verbatim}
-Sur le diagramme ci dessus, les serveurs physiques $N_3$ et $N_2$ doivent êtres mis
-hors-ligne pour des questions de maintenances, via la contrainte
+Sur le diagramme ci dessus, le serveurs physiques $N_2$ doit êtres mis
+hors-ligne pour des questions de maintenance, via la contrainte
 \textit{offline($N_i$);}\footnote{\url{http://www-sop.inria.fr/members/Fabien.Hermenier/btrpcc/offline.html}}.
 
 Comme aucun serveur VMWare n'est disponible, il est nécessaire de supprimer
-un serveur Xen, capable d'accueillir $VM_4$ et $VM_3$, par exemple $N_1$.
+un serveur Xen, capable d'accueillir $VM_3$, par exemple $N_1$.
 
 \subsection{Critère de succès}
 bis repetita: trouver un bon formalisme; définir et implémenter
@@ -198,13 +218,16 @@ gantt
 	\hline
 	$D_0$ & Cahier des charges & $1$ & Document & $S_4$ \\
 	\hline
-	$D_1$ & Rapport de management & $1$ & Document & $S_{20}$ \\
+	$D_1$ & Gestion du typage et du déploiement & $1$ & Document & $?$ \\
 	\hline
-	$D_2$ & Plugin entropy & $1$ & Logiciel & $S_{20}$ \\
+	$D_2$ & Ensemble de contraintes & $1$ & Document et Logiciel & $?$ \\
 	\hline
-	$D_3$ & Diaporama de présentation finale & $1$ & Document & $S_{20}$ \\
+	$D_3$ & Rapport de management & $1$ & Document & $S_{20}$ \\
+	\hline
+	$D_4$ & Diaporama de présentation finale & $1$ & Document & $S_{20}$ \\
 \end{tabular}
 \end{table}
+
 \subsection{Jalons}
 \begin{table}
 \centering
@@ -218,7 +241,7 @@ gantt
 	\hline
 	$J_2$ & implémentation & $1$ & $S_{n+k}$ & $D_2$, $D_1$ partiel \\
 	\hline
-	$J_3$ & projet & $1$ & $S_{20}$ & $D_1$, $D_2$, $D_3$ \\
+	$J_3$ & projet & $1$ & $S_{20}$ & $D_1$, $D_2$, $D_3$ et $D_4$ \\
 \end{tabular}
 \end{table}
 
@@ -232,7 +255,17 @@ bis repetita: trouver un bon formalisme; définir et implémenter
 
 \section{Participants}
 \subsection{Mathieu Bivert - CSSR}
+Étudiant à Polytech'Nice Sophia, spécialisé en Cryptographie, Systèmes
+Sécurité et Réseaux.
+
 \subsection{Fabien Hermenier - OASIS/INRIA}
+\textbf{Fabien Hermenier} a recu un doctorat en $2009$ à l'université
+de Nantes. Depuis $2011$, il enseigne en tant que professeur adjoint
+à l'université de Nice Sophia-Antipolis. Son travail de recherche
+s'articule autour des plateformes d'hébergement, de la virtualisation,
+du calcul autonome et de la gestion des ressources. Depuis $2006$, il
+travaille sur des algorithmes de placement de machines virtuelles pour
+faire face à l'augmentation des SLA dans les plateformes d'hébergements.
 
 \newpage
 \selectlanguage{francais}
