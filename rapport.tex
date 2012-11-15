@@ -32,25 +32,20 @@
 \Huge{Placement constraints for a better QoS in clouds}
 \end{center}
 \begin{figure}[!ht]
-        \centering
-        \includegraphics[scale=.45]{imgs/cloud.png}
+	\centering
+	\includegraphics[scale=.45]{imgs/cloud.png}
 \end{figure}
 \vfil
 \begin{figure}[!ht]
-        \centering
-        \begin{minipage}[c]{.46\linewidth}
-                \includegraphics[scale=.3]{imgs/inria.png}
-        \end{minipage}
-        \begin{minipage}[c]{.2\linewidth}
-                \includegraphics[scale=.5]{imgs/polytech.png}
-        \end{minipage}
+	\centering
+	\includegraphics[scale=.5]{imgs/polytech.png}
 \end{figure}
 \vfil
 \begin{description}
-        \item[Entreprise] Université de Nice-Sophia Antipolis (INRIA)
-        \item[Lieu] Sophia-Antipolis, France
-        \item[Responsable] Fabien Hermenier, équipe OASIS,
-        	\href{mailto:fabien.hermenier@unice.fr}{fabien.hermenier@unice.fr}
+	\item[Entreprise] Université de Nice-Sophia Antipolis
+	\item[Lieu] Sophia-Antipolis, France
+	\item[Responsable] Fabien Hermenier, équipe OASIS,
+		\href{mailto:fabien.hermenier@unice.fr}{fabien.hermenier@unice.fr}
 \end{description}
 \cleardoublepage
 }
@@ -63,12 +58,16 @@
 
 \selectlanguage{francais}
 \begin{abstract}
-Blablabla français
+Dans le cadre de la répartition de machines virtuelles sur un ensemble de
+serveurs physiques, ce projet vise à formaliser puis implémenter des
+contraintes de placement, portant sur le type de systèmes de virtualisation.
 \end{abstract}
 
 \selectlanguage{english}
 \begin{abstract}
-Blablabla english
+Within the framework of placing virtual machines on a set of physical servers,
+this project aims to formalize and to implement placement constraints,
+relative to the type of different virtualization systems.
 \end{abstract}
 
 \tableofcontents
@@ -76,11 +75,10 @@ Blablabla english
 \section{Description du projet}
 \subsection{Contexte de travail}
 Le monde industriel étant de plus en plus informatisé, la qualité des
-réseaux s'améliorant, les sociétés informatiques tendent à ne vendre plus
-de logiciels et de matériels mais louent des structures informatiques
-accessibles à distance.
+réseaux s'améliorant, les sociétés informatiques tendent à  louer des
+structures informatiques accessibles à distance.
 
-Les entreprises de services informatiques étant spécialisées dans la
+Les hébergeurs de services informatiques étant spécialisées dans la
 maintenance de ces structures, elles sont plus performantes qu'une société
 spécialisée dans la construction d'automobiles par exemple.
 Cette dernière a alors tout interêt a déporter la charge de la conception
@@ -88,12 +86,12 @@ et de la maintenance de ses systèmes d'informations à une entreprise
 de services. Cette dernière pourra offrir à ses clients des solutions
 personnalisées, et peu coûteuses par rapport à une gestion \og manuelle \fg.
 
-Une conséquence sur le matériel utilisé est le remplacement de
-dizaines de postes de bureau par des clients légers, peu cher et
-gourmand en ressources. En effet, ceux-ci sont uniquement chargés
-de fournir à l'utilisateur un affichage, un clavier, une souris et
-une connexion réseau, le calcul pouvant être effectué sur des serveurs
-distants.
+% Une conséquence sur le matériel utilisé est le remplacement de
+% dizaines de postes de bureau par des clients légers, peu cher et
+% gourmand en ressources. En effet, ceux-ci sont uniquement chargés
+% de fournir à l'utilisateur un affichage, un clavier, une souris et
+% une connexion réseau, le calcul pouvant être effectué sur des serveurs
+% distants.
 
 À noter que cependant que toutes les entreprises n'ont pas forcément
 interêt à exporter leur centre de traitement de l'information : par
@@ -105,51 +103,73 @@ physiques et de logiciels, utilisés par une entreprise de services. Ces
 dernières se déclinent en plusieurs types selon le(s) service(s) qu'elles
 proposent:
 \begin{description}
-	\item[SaaS] Software As A Service;
-	\item[PaaS] Platform As A Service;
-	\item[IaaS] Infrastructure As A Service;
-	\item[DaaS] Data As A Service;
+	\item[SaaS] Software As A Service, fournir un logiciel
+		(eg. un client email : Gmail\footnote{\url{https://gmail.com}});
+	\item[PaaS] Platform As A Service, fournir un ensemble de logiciels et services
+		(eg. accès aux Google Apps\footnote{\url{https://www.google.com/enterprise/apps/business/}});
+	\item[IaaS] Infrastructure As A Service, fournir des ressources matérielles
+		(eg. Amazon EC2\footnote{\url{https://aws.amazon.com/ec2/}});
+	\item[DaaS] Data As A Service, fournir un accès à des données
+		(eg. Dropbox\footnote{\url{https://www.dropbox.com/}});
 	\item[] $\ldots$
 \end{description}
 
 En particulier, un cloud \textit{IAAS} fournit à l'utilisateur l'accès
 à un ensemble de systèmes d'exploitations. Ces derniers sont très
 souvent virtualisés, ce qui présente l'avantage de pouvoir faire tourner
-plusieurs OS sur un même serveur physique. Par exemple, la figure
-\ref{hubertfxen} montre l'hyperviseur \textit{Xen} en train de faire
-tourner à d'un dom$0$ sous NetBSD, un FreeBSD, deux NetBSDs et
-une Debian.
+plusieurs OS sur un même serveur physique. La virtualisation repose sur
+un \textit{hyperviseur}, c'est-à-dire un moniteur de machines virtuelles (VM), dont
+le but est réaliser l'isolation entre les différentes VMs et de les administrer.
+L'administration consiste à démarrer, arrêter, migrer, régler les ressources des
+VMs.
+
+Par exemple, la figure \ref{hubertfxen} montre l'hyperviseur \textit{Xen}~\cite{barham2003xen}
+sous NetBSD en train de virtualiser un FreeBSD, deux NetBSDs et une Debian.
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=.17]{imgs/hubertf-xen.png}
-	\caption{\label{hubertfxen} Virtualisation avec Xen; trois VNC sont lancés pour accéder aux VMs}
+	\caption{\label{hubertfxen} Virtualisation avec Xen; trois clients
+		VNC \protect\footnotemark sont lancés pour accéder aux VMs}
 \end{figure}
 
+Une problématique pour les gestionnaires d'IAAS est donc de pouvoir placer
+correctement un ensemble donné de VMs sur un ensemble de serveurs physiques.
+Ce placement n'est pas libre : il est régit par un ensemble de contraintes
+qui doivent être satisfaites.
+
+\subsection{Motivations}
 La virtualisation présente plusieurs avantages:
 \begin{itemize}
 	\item sur une application dite $n$-tiers, il est possible
 	de placer chaque tiers sur une VM, et éventuellement d'en faire
-	des duplications, ce qui améliore la robustesse de l'application;
+	des duplications, ce qui améliore la robustesse de l'application.
+	Par exemple, n cas de défaillance d'un serveur physique, il est
+	stratégique d'avoir placé le réplicat d'un serveur de base de
+	données sur un serveur différent de l'original;
 	\item l'admninistration et la gestion des machines est simplifiée :
 	il y a moins de hardware, donc moins de maintenance physique;
 	la possibilité de pouvoir cloner/charger/décharger à la volée des
-	VMs permet d'améliorer la QoS facilement;
+	VMs permet d'améliorer la QoS facilement. Notamment, dans le cas
+	où l'administrateur doit effectuer une opération de maintenance sur
+	un serveur physique, il va devoir migrer~\cite{clark2005live} les VMs
+	sur un autre serveur;
 	\item chaque application peut être répartie sur une VM différente.
 	Ainsi, si une application est compromise, elle a moins de chances
 	de pouvoir compromettre d'autres applications que si elles étaient
 	toutes lancées sous un même OS;
 	\item utilisation plus performante du matériel, lorsqu'un ordinateur
 	puissant peu être utilisé au maximum de ses performances en faisant
-	tourner plusieurs systèmes d'exploitations.
+	tourner plusieurs systèmes d'exploitations. Cependant, utiliser un
+	serveur à $99\%$ de ses capacités n'est pas judicieux, puisque celui-ci
+	sera alors incapable d'assurer une augmentation de charge. Il est donc
+	impératif d'éviter une saturation;
 	\item $\ldots$
 \end{itemize}
 
-Une problématique pour les gestionnaires d'IAAS est donc de pouvoir placer
-correctement un ensemble donné de VMs $\mathcal{V}$ sur un ensemble de
-serveurs physiques $\mathcal{N}$. Ce placement n'est pas libre : il est
-régit par un ensemble de contraintes qui doivent être satisfaites.
+% for hubertfxen; can't be in \caption; may need te be moved later to
+% appears on the same page than the graphics
+\footnotetext{\url{http://www.hep.phy.cam.ac.uk/vncdocs/index.html}}
 
-\subsection{Motivations}
 La question de la répartition des machines virtuelles sur les machines
 physiques se pose alors pour des raisons diverses et variées:
 \begin{description}
@@ -182,6 +202,8 @@ physiques se pose alors pour des raisons diverses et variées:
 		physique ne faisant tourner qu'un seul type de plateforme;
 	\item[] $\ldots$
 \end{description}
+
+
 \subsection{Défis}
 Afin de pouvoir répondre aux besoins exprimés par l'un des domaines
 cité dans le paragraphe précédent, il est nécessaire de commencer
@@ -190,7 +212,7 @@ mathématiques des contraintes impliquées par la problèmatique choisie,
 et s'assurer qu'elles sont envisageables en pratique. Finalement, cette
 représentation abstraite doit être implémentée sous forme de plugin
 Java pour Entropy~\cite{herm2009}, un manager de clusters reposant sur
-l'algorithme btrplace\footnote{\url{http://btrp.inria.fr/sandbox/about.html}}.
+l'algorithme BtrPlace\footnote{\url{http://btrp.inria.fr/sandbox/about.html}}.
 
 \subsection{Objectifs}
 Actuellement, les trois/quatres derniers points cités ne sont pas forcément
@@ -200,7 +222,51 @@ de ces domaines et à l'ammener vers une forme satisfaisante.
 Le dernier point est celui sur lequel se porte ce projet. Le travail sera
 d'autant plus original que les questions d'économies d'énérgies sont actuellement
 très prisées par les chercheurs au détriment des autres.
+
+Dans un premier temps, il est nécessaire d'étendre le modèle actuel
+pour supporter le typage des infrastructures. C'est-à-dire, fournir
+une implémentation de base permettant d'associer un type à une machine
+virtuelle, et un ensemble de types possibles pour un serveur. En effet,
+ces derniers peuvent ne pas supporter n'importe quel hyperviseur.
+
+Dans un second temps, on modélise et implémente un ensemble de contraintes
+correspondant à des besoins concrets. Par exemple, on peut limiter le
+nombre de plateformes d'un type donné, interdire un changement de type
+sur un serveur, etc.
+
 \subsection{Scénarios}
+\subsubsection{Intuition}
+Pour faire simple, supposons dans un premier temps que comme en figure
+\ref{startsimple} on dispose de trois boîtes contenant une pile d'un ou
+plusieurs racks. Un rack peut contenir plusieurs objets d'une même forme (eg. rond, étoile).
+Par exemple la troisième boîte $B_3$ contient deux racks : $R_1$ qui est
+visible et contient deux étoiles, $R_2$ en dessous, pouvant stocker des
+ronds. En supposant que l'on doive prêter la deuxième boîte à un ami, il
+nous faut trouver une façon d'arriver à une configuration utilisant les
+deux boîtes restantes permettant de garder les mêmes objets visibles qu'au
+départ (figure \ref{endsimple}).
+\begin{figure}[!ht]
+	\centering
+	\subfigure[Avant le prêt] {
+		\includegraphics[scale=.25]{imgs/startsimple.png}
+		\label{startsimple}
+	}
+	\subfigure[Après le prêt] {
+		\includegraphics[scale=.25]{imgs/endsimple.png}
+		\label{endsimple}
+	}
+	\caption{\label{simple} Simplification du problème}
+\end{figure}
+
+(XXX bug conversion PNG)
+
+Pour y parvenir, on peut déplacer les deux étoiles de $B_3$ dans $B_1$,
+échanger les racks de $B_3$, mettre le rond de $B_2$ dans $B_3$, et
+finalement retirer $B_2$.
+
+\subsubsection{Cas réel}
+On reprend l'exemple précèdent sur la figure \ref{reconf} avec des
+informations plus proches de ce qu'il se passe en réalité.
 \begin{figure}[!ht]
 	\centering
 	\subfigure[Avant la reconfiguration] {
@@ -211,7 +277,7 @@ très prisées par les chercheurs au détriment des autres.
 		\includegraphics[scale=.25]{imgs/endreconf.png}
 		\label{endreconf}
 	}
-	\caption{\label{usecase} Exemple de changement de système de
+	\caption{\label{reconf} Exemple de changement de système de
 		virtualisation. En vert des VMs Xen, en cyan une VM VMWare}
 \end{figure}
 
@@ -231,68 +297,15 @@ de virtualisation. Enfin, la $VM_3$ est déplacée sur $N_1$, et $N_2$ peut
 \subsection{Critère de succès}
 Pour que le projet aboutisse, il est nécessaire d'établir un
 formalisme mathématique correct pour représenter les différents
-types de VMs supportés par les machines physiques.
+types de VMs supportés par les machines physiques. L'implémentation
+dans BtrPlace doit aussi être réalisable.
 
 \section{État de l'art}
 \subsection{Description générale}
 tralala
 \subsection{Formalisation du problème}
-On commence par définir le vocabulaire:
-\begin{description}
-	\item[Type] entier $t$ associé à chaque système de virtualisation;
-	\item[VM] machine virtuelle, notée $v \in \mathcal V$, à laquelle
-		est associée un type fixe $T(v)$ et une place $P(v)$;
-	\item[Nœud] serveur physique, noté $n \in \mathcal N$,doté d'un
-		type courant $T(n)$ et d'un ensemble de types possibles
-		$\mathcal{T}_n$;
-\end{description}
-
-% On note $N_n$ le nombre de nœud; $N_v$ le nombre de VMs (c'est-à-dire
-% respectivement les cardinaux de $\mathcal{N}$ et de $\mathcal{V}$).
-
-La fonction $T$ associe à une VM ou un Nœud son type; la fonction $P$
-associe à une VM un nœud.
-
-Le placement est alors satisfait ssi chaque VM est bien placée sur
-un nœud de même type, ie.:
-\[
-	(\forall v \in \mathcal V), (\exists n \in \mathcal N), P(v) = n
-		\Rightarrow T(n) = T(v)	
-\]
-
-L'un des cas possible pour satisfaire cette condition et de changer le
-type courant d'une machine virtuelle. Une action de déploiement doit
-alors être mise en place.
-
-La modélisation d'actions de reconfiguration est définie dans ~\cite{herm2012}.
-Elles sont réalisées à l'aide de \textit{slices}, qui correspondent à
-une durée finie pendant un processus de reconfiguration, durant laquelle
-des ressources sont utilisées.
-On distingue plusieurs types de slices:
-\begin{description}
-	\item[consuming slice], $c \in \mathcal C$, où les ressources sont
-		utilisées au début de la reconfiguration;
-	\item[demanding slice], $d \in \mathcal D$, où les ressources sont
-		utilisées à la fin de la reconfiguration;
-	\item[middle slice], $m \in \mathcal M$, où les ressources sont utilisées
-		entre le début et la fin du processus (XXX ambigüe, notation).
-\end{description}
-
-L'opération de déploiement peut s'exprimer en fonction de ces slices:
-\begin{enumerate}
-	\item l'état initial (c-slice) lors de la reconfiguration contient les
-		VMs de l'ancien type devant être déplacées sur un autre serveur ;
-	\item l'état intermédiaire (m-slice) représente le changement de type,
-		c'est-à-dire le changement de système de virtualisation. Il
-		peut être vu comme consommant toutes les ressources disponibles
-		sur le nœud;
-	\item l'état final (d-slice) où les VMs du nouveau type sont migrées sur
-		le nœud.
-\end{enumerate}
-
 \section{Méthodologie et planification}
 \subsection{Stratégie générale}
-bis repetita: trouver un bon formalisme; définir et implémenter
 \subsection{Découpage en lots}
 bis repetita: trouver un bon formalisme; définir et implémenter
 \subsection{Plannification}
@@ -348,7 +361,7 @@ Sécurité et Réseaux.
 
 \subsection{Fabien Hermenier - OASIS/INRIA}
 \textbf{Fabien Hermenier} a recu un doctorat en $2009$ à l'université
-de Nantes. Depuis $2011$, il enseigne en tant que professeur adjoint
+de Nantes. Depuis $2011$, il enseigne en tant que Maître de conférence
 à l'université de Nice Sophia-Antipolis. Son travail de recherche
 s'articule autour des plateformes d'hébergement, de la virtualisation,
 du calcul autonome et de la gestion des ressources. Depuis $2006$, il
