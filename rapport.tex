@@ -301,9 +301,81 @@ types de VMs supportés par les machines physiques. L'implémentation
 dans BtrPlace doit aussi être réalisable.
 
 \section{État de l'art}
+(XXX pas lus, pas de citations)
 \subsection{Description générale}
-tralala
+Historiquement, les gestionnaires de consolidation se sont concentrés sur
+le placement des VMs selon leurs besoins en ressources (CPU, RAM, BP, etc.),
+tout en cherchant à réduire la consommation énergétique
+
+Traditinonellement, ces approches reposent sur des algorithmes ad'hoc rapides
+pour répartir les VMs. D'autres algorithmes plus flexible ont vu le jours
+suite au demande des clients, par exemple portant sur la fiabilité des
+applications.
+
+Jung et al. proposent d'utiliser une fonction d'utilité pour les
+applications à haute disponibilité et performance. Leur solution
+porte sur la défaillance de serveurs physique, mais pas sur des
+changements de charge. Un algorithme glouton calcule le nombre de
+réplicats nécessaires pour chaque composant de l'application, de
+façon à satisfaire les besoins en temps de latence du réseau et
+en performance. Les réplicats peuvent être placés sur des racks
+ou des datacenters différents selon le degré voulu de fiabilité.
+(phrase pas claire). Ajouter de nouveaux paramètres, tels que la
+gestion des types de serveurs, demande de revoir l'algorithme
+de reconfiguration. Les tests sont limités à un datacenter d'une
+douzaine de serveurs.
+
+VMWare DRS donne à l'adminstrateur un accès à $4$ contraintes
+similaire à \textit{ban}, \textit{fence}, \textit{gather} et
+\textit{spread}. Cependant, leur version de \textit{spread}
+ne garantit pas que lors du déplacement d'une VM, l'ancienne
+version ne va pas tourner en même temps que la nouvelle.
+DRS n'est pas prévu pour être étendu, et $5$ des contraintes
+de BtrPlace y sont manquantes. De plus, DRS ne choisit pas
+automatiquement en fonction des propriétés d'une VM entre
+une re-instantiation ou une migration à chaud. (induced re-location?)
+Enfin, DRS ne permet d'administrer que des clusters de $32$
+serveurs.
+
+Entropy est à l'origine de BtrPlace. La programmation par contraintes
+est utilisée pour placer les VMs sur un nombre minimum de serveur.
+L'ordonnancement des actions nécessaires à la migration étant calculé
+avec une heuristique ad'hoc, il est impossible d'ajouter des
+contraintes telles que \textit{spread}, qui affectent l'ordonnancement.
+Finalement, toutes les VMs en marche sont prises en compte lors
+de la résolution d'un mauvais placement, ce qui limite le nombre
+de serveurs gérés à quelques centaines.
+
+Récemment, de nouvelles approches plus flexibles ont vu le jour;
+elles permettent d'intégrer des contraintes de placement à la
+demande. Bin et al. utilise aussi la programmation par contraintes
+pour fournir un gestionnaire de consolidation modulaire. Ils
+permettent une haute-disponibilité en guarantissant qu'à chaque instant,
+un certains nombre de serveurs sera disponible pour satisfaire
+la consommation de ressources des VMs et les contraintes de
+déplacement. Lorsqu'un serveur a de fortes chances de tomber en panne,
+les VMs sont migrés sur un autre capable de les satisfaire. Le modèle
+proposé ne supporte pas les contraintes portant sur la gestion de
+l'état des serveurs, l'ordonnancement des actions ou encore sur la
+façon dont les VMs sont migrées. Enfin, l'extensibilité n'a été
+vérifiée que pour $32$ serveurs physiques et $128$ VMs au maximum.
+
+Quelques aspects théoriques de BtrPlace ont été étudié au préalable,
+avec un premier prototype prenant en compte les ressources allouées
+aux VMs, leur placement et l'étape de migration. \cite{herm2012}
+étends ce travail en montrant que BtrPlace est capable de gérer
+des datacenters de plusieurs centaines de serveurs. BtrPlace
+est donc à l'heure actuelle le gestionnaire le plus efficace en
+ce qui concerne le placement de VMs, tout en rendant possible
+de contrôler l'état des serveurs et les sur-allocations de ressources.
+L'addition d'une dizaine de nouvelles contraintes répondant à
+ces besoins démontre une extensibilité correcte. L'utilisation
+d'une heuristique basée sur une optimisation de filtre (XXX quésaco?)
+rends BtrPlace jusqu'à $20$ fois plus rapide sur la gestion de
+datacenters composés de $2500$ serveurs.
+
 \subsection{Formalisation du problème}
+
 \section{Méthodologie et planification}
 \subsection{Stratégie générale}
 \subsection{Découpage en lots}
