@@ -203,16 +203,27 @@ physiques se pose alors pour des raisons diverses et variées:
 	\item[] $\ldots$
 \end{description}
 
+Enfin, on notera que ces besoins fluctuent au cours du temps; les systèmes
+de placement doivent donc être flexibles, au moins à deux niveaux.
+D'abords, ils doivent être \textit{configurable} afin de prendre en compte
+les spécificités et les propriétés, éventuellement variables des applications
+et du datacenter. Une deuxième propriété d'\textit{extensibilité} est nécessaire,
+ce afin d'être capable de supporter de nouvelles fonctionnalités au fur et à mesure
+de l'évolution des besoins.
 
 \subsection{Défis}
-Afin de pouvoir répondre aux besoins exprimés par l'un des domaines
-cité dans le paragraphe précédent, il est nécessaire de commencer
-par formaliser le problème. En d'autres termes, donner une définition
-mathématiques des contraintes impliquées par la problèmatique choisie,
-et s'assurer qu'elles sont envisageables en pratique. Finalement, cette
-représentation abstraite doit être implémentée sous forme de plugin
-Java pour Entropy~\cite{herm2009}, un manager de clusters reposant sur
-l'algorithme BtrPlace\footnote{\url{http://btrp.inria.fr/sandbox/about.html}}.
+Afin de compléter le manque de fonctionalités, l'ajout de contraintes à
+la volée est requise. Malgré un contexte fortement combinatoire (eg.
+le placement d'une VM influençant le placement d'autres VMs, la viabilité
+des contraintes), l'approche se doit d'être suffisamment flexible.
+
+La solution proposée par l'algorithme BtrPlace~\footnote{\url{http://btrp.inria.fr/sandbox/about.html};
+il est mis en place dans Entropy~\cite{herm2009}, un manager de clusters}
+va dans ce sens : il utilise la programmation
+par contrainte pour trouver une solution viable au placement, en un temps
+assez \og court \fg\ pour gérer un datacenter conséquent ($5000$ serveurs, $30000$
+VMs en $3$ minutes) de nouvelles contraintes peuvent être ajoutées sous
+formes de plugins Java en une trentaine de lignes de code, etc.
 
 \subsection{Objectifs}
 Actuellement, les trois/quatres derniers points cités ne sont pas forcément
@@ -223,58 +234,36 @@ Le dernier point est celui sur lequel se porte ce projet. Le travail sera
 d'autant plus original que les questions d'économies d'énérgies sont actuellement
 très prisées par les chercheurs au détriment des autres.
 
-Dans un premier temps, il est nécessaire d'étendre le modèle actuel
+Au sein d'une infrastructure, plusieurs types d'hyperviseurs/de VMs doivent
+être supportés. Afin de satisfaire le critère de flexibilité, on peut avoir
+besoin de changer le système de supervision des VMs d'un serveurs dynamiquement.
+Par exemple, on peut désirer vouloir garantir une certaines proportions
+d'une plateforme donnée, un nombre maximum de plateformes d'un certain type, etc.
+
+Dans l'état actuel, BtrPlace est incomplet : il ne permet pas de gérer le type
+des VMs/plateformes ni les étapes de reconfiguration. Dans ce sujet,  on
+se propose donc dans un premier temps, d'étendre le modèle actuel
 pour supporter le typage des infrastructures. C'est-à-dire, fournir
 une implémentation de base permettant d'associer un type à une machine
 virtuelle, et un ensemble de types possibles pour un serveur. En effet,
 ces derniers peuvent ne pas supporter n'importe quel hyperviseur.
 
 Dans un second temps, on modélise et implémente un ensemble de contraintes
-correspondant à des besoins concrets. Par exemple, on peut limiter le
+pour contrôler les plateformes selon leur type. Par exemple, on peut limiter le
 nombre de plateformes d'un type donné, interdire un changement de type
 sur un serveur, etc.
 
 \subsection{Scénarios}
-\subsubsection{Intuition}
-Pour faire simple, supposons dans un premier temps que comme en figure
-\ref{startsimple} on dispose de trois boîtes contenant une pile d'un ou
-plusieurs racks. Un rack peut contenir plusieurs objets d'une même forme (eg. rond, étoile).
-Par exemple la troisième boîte $B_3$ contient deux racks : $R_1$ qui est
-visible et contient deux étoiles, $R_2$ en dessous, pouvant stocker des
-ronds. En supposant que l'on doive prêter la deuxième boîte à un ami, il
-nous faut trouver une façon d'arriver à une configuration utilisant les
-deux boîtes restantes permettant de garder les mêmes objets visibles qu'au
-départ (figure \ref{endsimple}).
-\begin{figure}[!ht]
-	\centering
-	\subfigure[Avant le prêt] {
-		\includegraphics[scale=.25]{imgs/startsimple.png}
-		\label{startsimple}
-	}
-	\subfigure[Après le prêt] {
-		\includegraphics[scale=.25]{imgs/endsimple.png}
-		\label{endsimple}
-	}
-	\caption{\label{simple} Simplification du problème}
-\end{figure}
-
-(XXX bug conversion PNG)
-
-Pour y parvenir, on peut déplacer les deux étoiles de $B_3$ dans $B_1$,
-échanger les racks de $B_3$, mettre le rond de $B_2$ dans $B_3$, et
-finalement retirer $B_2$.
-
-\subsubsection{Cas réel}
 On reprend l'exemple précèdent sur la figure \ref{reconf} avec des
 informations plus proches de ce qu'il se passe en réalité.
 \begin{figure}[!ht]
 	\centering
 	\subfigure[Avant la reconfiguration] {
-		\includegraphics[scale=.25]{imgs/startreconf.png}
+		\includegraphics[scale=.40]{imgs/startreconf.eps}
 		\label{startreconf}
 	}
 	\subfigure[Après la reconfiguration] {
-		\includegraphics[scale=.25]{imgs/endreconf.png}
+		\includegraphics[scale=.40]{imgs/endreconf.eps}
 		\label{endreconf}
 	}
 	\caption{\label{reconf} Exemple de changement de système de
@@ -295,15 +284,15 @@ de virtualisation. Enfin, la $VM_3$ est déplacée sur $N_1$, et $N_2$ peut
 être éteint, pour arriver dans l'état décrit par le diagramme \ref{endreconf}.
 
 \subsection{Critère de succès}
-Pour que le projet aboutisse, il est nécessaire d'établir un
-formalisme mathématique correct pour représenter les différents
-types de VMs supportés par les machines physiques. L'implémentation
-dans BtrPlace doit aussi être réalisable.
+L'extension apportée à BtrPlace devra supporter correctement les problèmes
+de dépendances en le placement des VMs, le typage des serveurs et l'éventuel
+changement dynamique de type de ceux-ci. Enfin, les contraintes doivent être
+censées, bien définies et répondre à des besoins concrets.
 
 \section{État de l'art}
 (XXX pas lus, pas de citations)
 \subsection{Description générale}
-Historiquement, les gestionnaires de consolidation se sont concentrés sur
+Historiquement, les gestionnaires de placement se sont concentrés sur
 le placement des VMs selon leurs besoins en ressources (CPU, RAM, BP, etc.),
 tout en cherchant à réduire la consommation énergétique
 
@@ -349,7 +338,7 @@ de serveurs gérés à quelques centaines.
 Récemment, de nouvelles approches plus flexibles ont vu le jour;
 elles permettent d'intégrer des contraintes de placement à la
 demande. Bin et al. utilise aussi la programmation par contraintes
-pour fournir un gestionnaire de consolidation modulaire. Ils
+pour fournir un gestionnaire de placement modulaire. Ils
 permettent une haute-disponibilité en guarantissant qu'à chaque instant,
 un certains nombre de serveurs sera disponible pour satisfaire
 la consommation de ressources des VMs et les contraintes de
@@ -373,8 +362,6 @@ ces besoins démontre une extensibilité correcte. L'utilisation
 d'une heuristique basée sur une optimisation de filtre (XXX quésaco?)
 rends BtrPlace jusqu'à $20$ fois plus rapide sur la gestion de
 datacenters composés de $2500$ serveurs.
-
-\subsection{Formalisation du problème}
 
 \section{Méthodologie et planification}
 \subsection{Stratégie générale}
