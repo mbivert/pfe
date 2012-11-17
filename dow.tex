@@ -290,41 +290,57 @@ changement dynamique de type de ceux-ci. Enfin, les contraintes doivent être
 censées, bien définies et répondre à des besoins concrets.
 
 \section{État de l'art}
-(XXX pas lus, pas de citations)
 \subsection{Description générale}
 Historiquement, les gestionnaires de placement se sont concentrés sur
 le placement des VMs selon leurs besoins en ressources (CPU, RAM, BP, etc.),
 tout en cherchant à réduire la consommation énergétique
 
-Traditinonellement, ces approches reposent sur des algorithmes ad'hoc rapides
+Traditionnellement, ces approches reposent sur des algorithmes ad'hoc rapides
 pour répartir les VMs. D'autres algorithmes plus flexible ont vu le jours
-suite au demande des clients, par exemple portant sur la fiabilité des
+suite aux demandes des clients, par exemple portant sur la fiabilité des
 applications.
 
-Jung et al. proposent d'utiliser une fonction d'utilité pour les
-applications à haute disponibilité et performance. Leur solution
-porte sur la défaillance de serveurs physique, mais pas sur des
-changements de charge. Un algorithme glouton calcule le nombre de
-réplicats nécessaires pour chaque composant de l'application, de
-façon à satisfaire les besoins en temps de latence du réseau et
-en performance. Les réplicats peuvent être placés sur des racks
-ou des datacenters différents selon le degré voulu de fiabilité.
-(phrase pas claire). Ajouter de nouveaux paramètres, tels que la
-gestion des types de serveurs, demande de revoir l'algorithme
-de reconfiguration. Les tests sont limités à un datacenter d'une
-douzaine de serveurs.
+% Jung et al. proposent d'utiliser une fonction d'utilité pour les
+% applications à haute disponibilité et performance. Leur solution
+% porte sur la défaillance de serveurs physique, mais pas sur des
+% changements de charge. Un algorithme glouton calcule le nombre de
+% réplicats nécessaires pour chaque composant de l'application, de
+% façon à satisfaire les besoins en temps de latence du réseau et
+% en performance. Les réplicats peuvent être placés sur des racks
+% ou des datacenters différents selon le degré voulu de fiabilité.
+% (phrase pas claire). Ajouter de nouveaux paramètres, tels que la
+% gestion des types de serveurs, demande de revoir l'algorithme
+% de reconfiguration. Les tests sont limités à un datacenter d'une
+% douzaine de serveurs.
+% 
+% VMWare DRS donne à l'adminstrateur un accès à $4$ contraintes
+% similaires aux versions de \textit{ban}, \textit{fence}, \textit{gather} et
+% \textit{spread} de BtrPlace. Cependant, leur version de \textit{spread}
+% ne garantit pas que lors du déplacement d'une VM, l'ancienne
+% version ne va pas tourner en même temps que la nouvelle.
+% DRS n'est pas prévu pour être étendu, et $5$ des contraintes
+% de BtrPlace y sont manquantes. De plus, DRS ne choisit pas
+% automatiquement en fonction des propriétés d'une VM entre
+% une re-instantiation ou une migration à chaud. (induced re-location?)
+% Enfin, DRS ne permet d'administrer que des clusters de $32$
+% serveurs.
 
-VMWare DRS donne à l'adminstrateur un accès à $4$ contraintes
-similaire à \textit{ban}, \textit{fence}, \textit{gather} et
-\textit{spread}. Cependant, leur version de \textit{spread}
-ne garantit pas que lors du déplacement d'une VM, l'ancienne
-version ne va pas tourner en même temps que la nouvelle.
-DRS n'est pas prévu pour être étendu, et $5$ des contraintes
-de BtrPlace y sont manquantes. De plus, DRS ne choisit pas
-automatiquement en fonction des propriétés d'une VM entre
-une re-instantiation ou une migration à chaud. (induced re-location?)
-Enfin, DRS ne permet d'administrer que des clusters de $32$
-serveurs.
+Une approche prise par \cite{jung2010} consiste à utiliser une fonction
+d'utilité pour les applications à haute disponibilité. Leur solution
+est prévue pour fonctionner dans le cas d'une défaillance d'un serveur
+physique, mais n'est nullement adaptée pour répondre à des changements
+de charge. De plus, l'ajout de nouveaux paramètres tels que la gestion
+des types des serveurs nécessite de revoir l'algorithme de reconfiguration.
+Enfin, les tests sont limités à un datacenter d'une douzaine de serveurs.
+
+VMWare DRS suit une approche similaire à celle de BtrPlace en donnant
+à l'administrateur un accès à quelques contraintes (plus ou moins
+équivalentes à \textit{ban}, \textit{fence}, \textit{gather} et \textit{spread}).
+Cependant, leur version de \textit{spread} ne garantit pas que lors
+du déplacement d'une VM, l'ancienne et la nouvelle version de celle-ci
+ne vont pas se superposer. DRS n'est pas prévu pour être étendu, et
+il lui manque $5$ contraintes par rapport à BtrPlace. Enfin, l'administration
+est limitée à des clusters de $32$ serveurs.
 
 Entropy est à l'origine de BtrPlace. La programmation par contraintes
 est utilisée pour placer les VMs sur un nombre minimum de serveur.
@@ -349,7 +365,7 @@ l'état des serveurs, l'ordonnancement des actions ou encore sur la
 façon dont les VMs sont migrées. Enfin, l'extensibilité n'a été
 vérifiée que pour $32$ serveurs physiques et $128$ VMs au maximum.
 
-Quelques aspects théoriques de BtrPlace ont été étudié au préalable,
+Quelques aspects théoriques de BtrPlace ont été étudiés au préalable,
 avec un premier prototype prenant en compte les ressources allouées
 aux VMs, leur placement et l'étape de migration. \cite{herm2012}
 étends ce travail en montrant que BtrPlace est capable de gérer
@@ -359,7 +375,7 @@ ce qui concerne le placement de VMs, tout en rendant possible
 de contrôler l'état des serveurs et les sur-allocations de ressources.
 L'addition d'une dizaine de nouvelles contraintes répondant à
 ces besoins démontre une extensibilité correcte. L'utilisation
-d'une heuristique basée sur une optimisation de filtre (XXX quésaco?)
+d'une heuristique basée sur une optimisation de filtre
 rends BtrPlace jusqu'à $20$ fois plus rapide sur la gestion de
 datacenters composés de $2500$ serveurs.
 
