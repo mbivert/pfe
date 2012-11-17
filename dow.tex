@@ -379,6 +379,25 @@ d'une heuristique basée sur une optimisation de filtre
 rends BtrPlace jusqu'à $20$ fois plus rapide sur la gestion de
 datacenters composés de $2500$ serveurs.
 
+La scalabilité de BtrPlace est testée sur
+Grid'5000\footnote{\url{https://www.grid5000.fr}}. Celle-ci est une
+plateforme designée pour aider la recherche expérimentale en informatique,
+et ce dans plusieurs domaines, comme le calcul parallèle, distribué, le
+réseau, etc. Grid'5000 repose sur Kadeploy\footnote{\url{http://kadeploy.imag.fr/}},
+un ensemble d'outils permettant de manager un ensemble de nœuds.
+Une autre plateforme, Emulab\footnote{\url{http://www.emulab.net/}} joue
+un rôle similaire, et permet par exemple de créer des topologies
+réseaux virtuelles à la volée.
+
+Grid'5000 comme Kadeploy incluent chacune un algorithme de placement
+permettant de redéployer une VM au besoin. Par contre, aucun d'eux
+ne supporte des contraintes ou la gestion de licence, ou encore la
+préparation de plateforme à l'avance.
+
+Donc pour résumer, aucun système existant hormis BtrPlace ne scale
+correctement, et aucun ne supporte le typage des VMs/nœuds, ni même
+les moyens de l'exprimer telle quelle avec leur modèle.
+
 \section{Méthodologie et planification}
 \subsection{Stratégie générale}
 \subsection{Découpage en lots}
