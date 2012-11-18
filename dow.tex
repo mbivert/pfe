@@ -382,26 +382,16 @@ pour d'autres raisons : il pourra servir de carnet de bord, ce
 statut garantissant sa complétude vis-à-vis du travail fourni.
 
 \subsection{Découpage en lots}
-% \begin{enumerate}
-% 	\item management du projet;
-% 	\item étude bibliographique;
-% 	\item rédaction du cahier des charges;
-% 	\item extension de BtrPlace pour le support du typage;
-% 	\item formalisation de contraintes utilisant l'extension précèdente;
-% 	\item implémentation de ces contraintes;
-% 	\item rédaction du rapport;
-% 	\item création du support de présentation.
-% \end{enumerate}
 \begin{center}
 \begin{tabular}{c|c|c|c|c|c}
-	Id & Titre du lot & Type & Budget & Début (inclus) & Fin (inclus) \\
+	\textbf{Id} & \textbf{Titre du lot} & \textbf{Type} & \textbf{Budget} & \textbf{Début (inclus)} & \textbf{Fin (inclus)} \\
 	\hline
 	\hline
 	$L_1$ & Management du projet & MGMT & $38$ & $S_3$ & $S_{20}$ \\
 	\hline
 	$T_{1.1}$ & Planification & MGMT & $19$ & $S_3$ & $S_{20}$ \\
 	\hline
-	$T_{1.2}$ & Suivi du projet & MGMT & $19$ & $S_3$ & $S_{20}$ \\
+	$T_{1.2}$ & Suivi du projet & MGMT & $19$ & $S_6$ & $S_{20}$ \\
 	\hline
 	$L_2$ & Étude bibliographique & RECH & $38$ & $S_3$ & $S_5$ \\
 	\hline
@@ -409,7 +399,7 @@ statut garantissant sa complétude vis-à-vis du travail fourni.
 	\hline
 	$L_4$ & Extension pour le typage & IMPL & $38$ & $S_6$ & $S_{12}$ \\
 	\hline
-	$L_5$ & Ensemble de contraintes & RECH/IMPL & $38$ & $S_{13}$ & $S_{14}$ \\
+	$L_5$ & Ensemble de contraintes & RECH/IMPL & $38$ & $S_{13}$ & $S_{17}$ \\
 	\hline
 	$T_{5.1}$ & Formalisation des contraintes & RECH & $19$ & $S_{13}$ & $S_{14}$ \\
 	\hline
@@ -425,34 +415,38 @@ gantt redondant avec le découpage en lots tel que spécifié.
 \subsection{Livrables associés au projet}
 \begin{center}
 \begin{tabular}{c|c|c|c|c}
-	Id & Titre du livrable & Lot(s) & Nature & Date \\
+	\textbf{Id} & \textbf{Titre du livrable} & \textbf{Lot(s)} & \textbf{Nature} & \textbf{Date} \\
 	\hline
 	\hline
-	$D_1$ & Cahier des charges & $1$ & Document & $S_4$ \\
+	$D_1$ & Cahier des charges & $L_2, L_3$ & Document & $S_4$ \\
 	\hline
-	$D_2$ & Gestion du typage et du déploiement & $1$ & Document & $?$ \\
+	$D_2$ & Gestion du typage et du déploiement & $L_4$ & Document et Logiciel & $S_{12}$ \\
 	\hline
-	$D_3$ & Ensemble de contraintes & $1$ & Document et Logiciel & $?$ \\
+	$D_3$ & Ensemble de contraintes & $L_5$ & Document et Logiciel & $S_{17}$ \\
 	\hline
-	$D_4$ & Rapport de management & $1$ & Document & $S_{20}$ \\
+	$D_4$ & Rapport de management & $L_6$ & Document & $S_{20}$ \\
 	\hline
-	$D_5$ & Diaporama de présentation & $1$ & Document & $S_{20}$ \\
+	$D_5$ & Diaporama de présentation & $L_7$ & Document & $S_{20}$ \\
 \end{tabular}
 \end{center}
 
 \subsection{Jalons}
 \begin{center}
 \begin{tabular}{c|c|c|c|c}
-	Id & Jalon de fin de phase & Lot(s) & Date & Vérification \\
+	\textbf{Id} & \textbf{Jalon de fin de phase} & \textbf{Lot(s)} & \textbf{Date} & \textbf{Vérification} \\
 	\hline
 	\hline
-	$J_0$ & planification & $1$ & $S_4$ & $D_1$ \\
+	$J_1$ & Planification & $L_1$ & $S_4$ & $D_1$ \\
 	\hline
-	$J_1$ & formalisation & $1$ & $S_n$ & $D_2$ partiel \\
+	$J_2$ & Formalisation typage & $L_4$ & $S_n$ & $D_2$ partiel \\
 	\hline
-	$J_2$ & implémentation & $1$ & $S_{n+k}$ & $D_3$, $D_2$ partiel \\
+	$J_3$ & Implémentation typage & $L_4$ & $S_{12}$ & $D_3$, $D_2$ partiel \\
 	\hline
-	$J_3$ & projet & $1$ & $S_{20}$ & $D_2$, $D_3$, $D_4$ et $D_5$ \\
+	$J_4$ & Formalisation contraintes & $L_5$ & $S_{14}$ & $D_2$ partiel \\
+	\hline
+	$J_5$ & Implémentation contraintes & $L_5$ & $S_{17}$ & $D_3$, $D_2$ partiel \\
+	\hline
+	$J_6$ & Fin du projet & $L_5$ & $S_{20}$ & $D_4$, $D_5$ \\
 \end{tabular}
 \end{center}
 
@@ -491,6 +485,7 @@ description textuelle:
 Enfin, comme mentionné à plusieurs reprises auparavant, les contraintes ne peuvent
 être implémentées sans un système de typage fonctionnel dans BtrPlace.
 \subsection{Description des lots}
+Cf. § Objectifs.
 \subsection{Résumé de l'effort}
 \subsection{Gestion du risque}
 En cas de blocage sur l'implémentation du typage, une réfléxion sur
