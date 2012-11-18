@@ -411,7 +411,6 @@ statut garantissant sa complétude vis-à-vis du travail fourni.
 \end{tabular}
 \end{center}
 \subsection{Plannification}
-gantt redondant avec le découpage en lots tel que spécifié.
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=.3]{imgs/gantt.png}
@@ -490,8 +489,28 @@ description textuelle:
 Enfin, comme mentionné à plusieurs reprises auparavant, les contraintes ne peuvent
 être implémentées sans un système de typage fonctionnel dans BtrPlace.
 \subsection{Description des lots}
-Cf. § Objectifs.
+Le lot concernant le typage vise à modifier BtrPlace afin de permettre le typage
+des machines virtuelles et des nœuds. Pour cela, il est nécessaire d'utiliser un
+nouveau type de \textit{slice}. Dans le cadre de BP, une slice est une façon
+de modéliser le comportement d'une VM lors d'un changement de configuration.
+
+Une fois ce formalisme implémenté, le typage proprement dit pourra commencer.
+
+Le lots concernant les contraintes vise à utiliser la partie précèdente et
+des besoins concrets pour modéliser puis implémenter des plugins utilisant
+le typage des nœuds.
+
+On trouvera des exemples d'utilisation et une description plus détaillées
+dans la section \og Objectifs \fg.
+
 \subsection{Résumé de l'effort}
+Comme pour tout projet de recherche, le rapport se devra d'être soigné, ce afin
+de permettre la pérénité du travail. BtrPlace ayant été conçu pour être
+facilement extensible par plugins, l'implémentation des contraintes devrait
+prendre moins de temps et être plus facile que la mise en place du système de
+typage. Cette dernière nécessite en effet d'augmenter le modèle interne de
+BtrPlace.
+
 \subsection{Gestion du risque}
 En cas de blocage sur l'implémentation du typage, une réfléxion sur
 les contraintes pourra toujours avoir lieu, mais ne déboucherait pas
