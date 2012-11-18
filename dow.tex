@@ -397,17 +397,23 @@ statut garantissant sa complétude vis-à-vis du travail fourni.
 	Id & Titre du lot & Type & Budget & Début (inclus) & Fin (inclus) \\
 	\hline
 	\hline
-	$L_0$ & Management du projet & MGMT & $38$ & $S_3$ & $S_{20}$ \\
+	$L_1$ & Management du projet & MGMT & $38$ & $S_3$ & $S_{20}$ \\
 	\hline
-	$L_1$ & Étude bibliographique & RECH & $38$ & $S_3$ & $S_5$ \\
+	$T_{1.1}$ & Planification & MGMT & $19$ & $S_3$ & $S_{20}$ \\
 	\hline
-	$L_2$ & Cahier des charges & REDAC & $38$ & $S_3$ & $S_4$ \\
+	$T_{1.2}$ & Suivi du projet & MGMT & $19$ & $S_3$ & $S_{20}$ \\
 	\hline
-	$L_3$ & Extension pour le typage & IMPL & $38$ & $S_6$ & $S_{12}$ \\
+	$L_2$ & Étude bibliographique & RECH & $38$ & $S_3$ & $S_5$ \\
 	\hline
-	$L_4$ & Formalisation des contraintes & RECH & $38$ & $S_{13}$ & $S_{14}$ \\
+	$L_3$ & Cahier des charges & REDAC & $38$ & $S_3$ & $S_4$ \\
 	\hline
-	$L_5$ & Implémentation des contraintes & IMPL & $38$ & $S_{15}$ & $S_{17}$ \\
+	$L_4$ & Extension pour le typage & IMPL & $38$ & $S_6$ & $S_{12}$ \\
+	\hline
+	$L_5$ & Ensemble de contraintes & RECH/IMPL & $38$ & $S_{13}$ & $S_{14}$ \\
+	\hline
+	$T_{5.1}$ & Formalisation des contraintes & RECH & $19$ & $S_{13}$ & $S_{14}$ \\
+	\hline
+	$T_{5.2}$ & Implémentation des contraintes & IMPL & $19$ & $S_{15}$ & $S_{17}$ \\
 	\hline
 	$L_6$ & Rédaction du rapport & REDAC & $38$ & $S_3$ & $S_{20}$ \\
 	\hline
@@ -422,15 +428,15 @@ gantt redondant avec le découpage en lots tel que spécifié.
 	Id & Titre du livrable & Lot(s) & Nature & Date \\
 	\hline
 	\hline
-	$D_0$ & Cahier des charges & $1$ & Document & $S_4$ \\
+	$D_1$ & Cahier des charges & $1$ & Document & $S_4$ \\
 	\hline
-	$D_1$ & Gestion du typage et du déploiement & $1$ & Document & $?$ \\
+	$D_2$ & Gestion du typage et du déploiement & $1$ & Document & $?$ \\
 	\hline
-	$D_2$ & Ensemble de contraintes & $1$ & Document et Logiciel & $?$ \\
+	$D_3$ & Ensemble de contraintes & $1$ & Document et Logiciel & $?$ \\
 	\hline
-	$D_3$ & Rapport de management & $1$ & Document & $S_{20}$ \\
+	$D_4$ & Rapport de management & $1$ & Document & $S_{20}$ \\
 	\hline
-	$D_4$ & Diaporama de présentation & $1$ & Document & $S_{20}$ \\
+	$D_5$ & Diaporama de présentation & $1$ & Document & $S_{20}$ \\
 \end{tabular}
 \end{center}
 
@@ -440,13 +446,13 @@ gantt redondant avec le découpage en lots tel que spécifié.
 	Id & Jalon de fin de phase & Lot(s) & Date & Vérification \\
 	\hline
 	\hline
-	$J_0$ & planification & $1$ & $S_4$ & $D_0$ \\
+	$J_0$ & planification & $1$ & $S_4$ & $D_1$ \\
 	\hline
-	$J_1$ & formalisation & $1$ & $S_n$ & $D_1$ partiel \\
+	$J_1$ & formalisation & $1$ & $S_n$ & $D_2$ partiel \\
 	\hline
-	$J_2$ & implémentation & $1$ & $S_{n+k}$ & $D_2$, $D_1$ partiel \\
+	$J_2$ & implémentation & $1$ & $S_{n+k}$ & $D_3$, $D_2$ partiel \\
 	\hline
-	$J_3$ & projet & $1$ & $S_{20}$ & $D_1$, $D_2$, $D_3$ et $D_4$ \\
+	$J_3$ & projet & $1$ & $S_{20}$ & $D_2$, $D_3$, $D_4$ et $D_5$ \\
 \end{tabular}
 \end{center}
 
@@ -457,6 +463,33 @@ email plusieurs fois par semaine.
 
 \section{Description de la mise en œuvre du projet}
 \subsection{Interdépendance des lots et tâches}
+Pour les deux lots composés $L_1$ et $L_5$:
+\begin{figure}[!ht]
+	\centering
+	\subfigure[$L_1$] {
+		\includegraphics[scale=.45]{imgs/L1.eps}
+	}
+	\subfigure[$L_5$] {
+		\includegraphics[scale=.45]{imgs/L5.eps}
+	}
+%	\caption{\label{lotscomp} Lots $L_1$ et $L_5$}
+\end{figure}
+
+Pour les autres, en raison de leur extrème simplicité, on se contente d'une
+description textuelle:
+\begin{itemize}
+	\item Les lots \og Cahier des charges \fg\ et \og Étude bibliographique \fg\
+		sont des prérequis au livrable \og cahier des charges \fg\ ($L_2, L_3
+		\Rightarrow D_1$);
+	\item le lot d'\og Extension de typage \fg\ est un prérequis au livrable
+		\og Gestion du typage et déploiement \fg\ ($L_4 \Rightarrow D_2$);
+	\item le lot d'\og Rédaction du rapport \fg\ est un prérequis au livrable
+		\og Rapport de management \fg\ ($L_6 \Rightarrow D_4$);
+	\item le lot d'\og Création du support \fg\ est un prérequis au livrable
+		\og Diaporama de présentation \fg\ ($L_7 \Rightarrow D_5$);
+\end{itemize}
+Enfin, comme mentionné à plusieurs reprises auparavant, les contraintes ne peuvent
+être implémentées sans un système de typage fonctionnel dans BtrPlace.
 \subsection{Description des lots}
 \subsection{Résumé de l'effort}
 \subsection{Gestion du risque}
