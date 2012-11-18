@@ -91,25 +91,31 @@ cliente.
 
 On notera cependant que toutes les entreprises n'ont pas forcément
 interêt à exporter leur centre de traitement de l'information : par
-exemple des structures reposant sur des données hautement confidentielles
-(recherche de pointe, armée, état, etc.).
+exemple des structures reposant sur des données hautement confidentielles,
+comme la recherche de pointe, l'armée ou les états.
 
 Le terme de \og cloud \fg\ correspond à un certain nombre de serveurs
 physiques et de logiciels, utilisés par une entreprise de services. Ces
 dernières se déclinent en plusieurs types selon le(s) service(s) qu'elles
-proposent:
-\begin{description}
-	\item[SaaS] Software As A Service, fournir un logiciel
-		(eg. un client email : Gmail\footnote{\url{https://gmail.com}});
-	\item[PaaS] Platform As A Service, fournir une pile logicielle pour le développement
-		et l'hébergement de services sur un cloud
-		(eg. accès aux Google Apps\footnote{\url{https://www.google.com/enterprise/apps/business/}});
-	\item[IaaS] Infrastructure As A Service, fournir des ressources matérielles
-		(eg. Amazon EC2\footnote{\url{https://aws.amazon.com/ec2/}});
-	\item[DaaS] Data As A Service, fournir un accès à des données
-		(eg. Dropbox\footnote{\url{https://www.dropbox.com/}});
-	\item[] $\ldots$
-\end{description}
+proposent, par exemple:
+\begin{center}
+\begin{tabular}{c|c|c|c}
+	\textbf{Acronyme} & \textbf{Service} \textbf{fourni} & \textbf{Description} & \textbf{Exemple} \\
+	\hline
+	\hline
+	SaaS & Software & Accès à un logiciel &
+		Gmail\footnote{\url{https://gmail.com}} \\
+	\hline
+	PaaS & Platform & Une pile logicielle pour le développement &
+		Google Apps\footnote{\url{https://www.google.com/enterprise/apps/business/}} \\
+	\hline
+	IaaS & Infrastructure & Accès à des ressources matérielles &
+		Amazon EC2\footnote{\url{https://aws.amazon.com/ec2/}} \\
+	\hline
+	DaaS & Data & Accès à des données &
+		Dropbox\footnote{\url{https://www.dropbox.com/}}
+\end{tabular}
+\end{center}
 
 En particulier, un cloud \textit{IAAS} fournit à l'utilisateur un accès
 à un ensemble de systèmes d'exploitations. Ces derniers sont très
@@ -351,22 +357,19 @@ d'une heuristique basée sur une optimisation de filtre
 rends BtrPlace jusqu'à $20$ fois plus rapide sur la gestion de
 datacenters composés de $2500$ serveurs.
 
-La scalabilité de BtrPlace est testée sur
-Grid'5000\footnote{\url{https://www.grid5000.fr}}. Celle-ci est une
-plateforme designée pour aider la recherche expérimentale en informatique,
-et ce dans plusieurs domaines, comme le calcul parallèle, distribué, le
-réseau, etc. Grid'5000 repose sur Kadeploy\footnote{\url{http://kadeploy.imag.fr/}},
-un ensemble d'outils permettant de manager un ensemble de nœuds.
-Une autre plateforme, Emulab\footnote{\url{http://www.emulab.net/}} joue
-un rôle similaire, et permet par exemple de créer des topologies
-réseaux virtuelles à la volée.
+Enfin, plusieurs plateformes expérimentales permettent de changer
+l'OS tournant sur un nœud. Grid'5000~\cite{g5k}, reposant sur
+Kadeploy\footnote{\url{http://kadeploy.imag.fr/}}, un ensemble
+d'outils permettant de manager un ensemble de nœuds, utilise
+OAR, un algorithe de réservations de ressources. Une autre
+plateforme, Emulab~\cite{emulab} utilise Assign~\cite{ricci2003solver}
+comme algorithme de placement.
 
-Grid'5000 comme Kadeploy incluent chacune un algorithme de placement
-permettant de redéployer une VM au besoin. Par contre, aucun d'eux
-ne supporte des contraintes ou la gestion de licence, ou encore la
+Aucun des deux algorithmes utilisés par ces plateformes
+ne supporte des contraintes,la gestion de licence, ou encore la
 préparation de plateforme à l'avance.
 
-Donc pour résumer, aucun système existant hormis BtrPlace ne scale
+ Donc pour résumer, aucun système existant hormis BtrPlace ne scale
 correctement, et aucun ne supporte le typage des VMs/nœuds, ni même
 les moyens de l'exprimer telle quelle avec leur modèle.
 
@@ -377,8 +380,7 @@ bis repetita: trouver un bon formalisme; définir et implémenter
 \subsection{Plannification}
 gantt
 \subsection{Livrables associés au projet}
-\begin{table}
-\centering
+\begin{center}
 \begin{tabular}{c|c|c|c|c}
 	Id & Titre du livrable & Lot(s) & Nature & Date \\
 	\hline
@@ -393,11 +395,10 @@ gantt
 	\hline
 	$D_4$ & Diaporama de présentation finale & $1$ & Document & $S_{20}$ \\
 \end{tabular}
-\end{table}
+\end{center}
 
 \subsection{Jalons}
-\begin{table}
-\centering
+\begin{center}
 \begin{tabular}{c|c|c|c|c}
 	Id & Jalon de fin de phase & Lot(s) & Date & Vérification \\
 	\hline
@@ -410,7 +411,7 @@ gantt
 	\hline
 	$J_3$ & projet & $1$ & $S_{20}$ & $D_1$, $D_2$, $D_3$ et $D_4$ \\
 \end{tabular}
-\end{table}
+\end{center}
 
 \section{Description de la mise en œuvre du projet}
 \subsection{Interdépendance des lots et tâches}
