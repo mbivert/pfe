@@ -369,16 +369,53 @@ Aucun des deux algorithmes utilisés par ces plateformes
 ne supporte des contraintes,la gestion de licence, ou encore la
 préparation de plateforme à l'avance.
 
- Donc pour résumer, aucun système existant hormis BtrPlace ne scale
-correctement, et aucun ne supporte le typage des VMs/nœuds, ni même
-les moyens de l'exprimer telle quelle avec leur modèle.
+Donc pour résumer, aucun système existant hormis BtrPlace ne passe
+à l'échelle correctement, et aucun ne supporte le typage des VMs/nœuds,
+ni même les moyens de l'exprimer telle quelle avec leur modèle.
 
 \section{Méthodologie et planification}
 \subsection{Stratégie générale}
+La nature même du projet induit une stratégie \og linéaire \fg. L'étude
+bibliographique pourra être étendue sur tout le projet en fonction
+des besoins. Il en est de même pour la rédaction du rapport final, mais
+pour d'autres raisons : il pourra servir de carnet de bord, ce
+statut garantissant sa complétude vis-à-vis du travail fourni.
+
 \subsection{Découpage en lots}
-bis repetita: trouver un bon formalisme; définir et implémenter
+% \begin{enumerate}
+% 	\item management du projet;
+% 	\item étude bibliographique;
+% 	\item rédaction du cahier des charges;
+% 	\item extension de BtrPlace pour le support du typage;
+% 	\item formalisation de contraintes utilisant l'extension précèdente;
+% 	\item implémentation de ces contraintes;
+% 	\item rédaction du rapport;
+% 	\item création du support de présentation.
+% \end{enumerate}
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c}
+	Id & Titre du lot & Type & Budget & Début (inclus) & Fin (inclus) \\
+	\hline
+	\hline
+	$L_0$ & Management du projet & MGMT & $38$ & $S_3$ & $S_{20}$ \\
+	\hline
+	$L_1$ & Étude bibliographique & RECH & $38$ & $S_3$ & $S_5$ \\
+	\hline
+	$L_2$ & Cahier des charges & REDAC & $38$ & $S_3$ & $S_4$ \\
+	\hline
+	$L_3$ & Extension pour le typage & IMPL & $38$ & $S_6$ & $S_{12}$ \\
+	\hline
+	$L_4$ & Formalisation des contraintes & RECH & $38$ & $S_{13}$ & $S_{14}$ \\
+	\hline
+	$L_5$ & Implémentation des contraintes & IMPL & $38$ & $S_{15}$ & $S_{17}$ \\
+	\hline
+	$L_6$ & Rédaction du rapport & REDAC & $38$ & $S_3$ & $S_{20}$ \\
+	\hline
+	$L_7$ & Création du support de présentation & DEMO & $38$ & $S_{19}$ & $S_{20}$ \\
+\end{tabular}
+\end{center}
 \subsection{Plannification}
-gantt
+gantt redondant avec le découpage en lots tel que spécifié.
 \subsection{Livrables associés au projet}
 \begin{center}
 \begin{tabular}{c|c|c|c|c}
@@ -393,7 +430,7 @@ gantt
 	\hline
 	$D_3$ & Rapport de management & $1$ & Document & $S_{20}$ \\
 	\hline
-	$D_4$ & Diaporama de présentation finale & $1$ & Document & $S_{20}$ \\
+	$D_4$ & Diaporama de présentation & $1$ & Document & $S_{20}$ \\
 \end{tabular}
 \end{center}
 
@@ -413,14 +450,19 @@ gantt
 \end{tabular}
 \end{center}
 
+\subsection{Pilotage et suivi}
+Une réunion à l'INRIA avec l'encadrant par semaine au minimum, pour
+constater le bon avancement du projet, plus si besoin. Contacts par
+email plusieurs fois par semaine.
+
 \section{Description de la mise en œuvre du projet}
 \subsection{Interdépendance des lots et tâches}
-bis repetita: trouver un bon formalisme; définir et implémenter
 \subsection{Description des lots}
-bis repetita: trouver un bon formalisme; définir et implémenter
 \subsection{Résumé de l'effort}
 \subsection{Gestion du risque}
-
+En cas de blocage sur l'implémentation du typage, une réfléxion sur
+les contraintes pourra toujours avoir lieu, mais ne déboucherait pas
+sur une implémentation valide.
 \section{Participants}
 \subsection{Mathieu Bivert - CSSR}
 Étudiant à Polytech'Nice Sophia, spécialisé en Cryptographie, Systèmes
