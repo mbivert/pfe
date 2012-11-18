@@ -61,13 +61,17 @@
 Dans le cadre de la répartition de machines virtuelles sur un ensemble de
 serveurs physiques, ce projet vise à formaliser puis implémenter des
 contraintes de placement, portant sur le type de systèmes de virtualisation.
+Avant de s'intéresser à ces contraintes, il est nécessaire de doter BtrPlace
+d'un tel système de typage.
 \end{abstract}
 
 \selectlanguage{english}
 \begin{abstract}
 Within the framework of placing virtual machines on a set of physical servers,
 this project aims to formalize and to implement placement constraints,
-relative to the type of different virtualization systems.
+relative to the type of different virtualization systems. Before thinking
+about those constraints, BtrPlace needs to be extended in order to support such
+a type system.
 \end{abstract}
 
 \tableofcontents
@@ -78,22 +82,14 @@ Le monde industriel étant de plus en plus informatisé, la qualité des
 réseaux s'améliorant, les sociétés informatiques tendent à  louer des
 structures informatiques accessibles à distance.
 
-Les hébergeurs de services informatiques étant spécialisées dans la
-maintenance de ces structures, elles sont plus performantes qu'une société
-spécialisée dans la construction d'automobiles par exemple.
-Cette dernière a alors tout interêt a déporter la charge de la conception
-et de la maintenance de ses systèmes d'informations à une entreprise
-de services. Cette dernière pourra offrir à ses clients des solutions
-personnalisées, et peu coûteuses par rapport à une gestion \og manuelle \fg.
+Une société spécialisée dans l'automobile par exemple, a tout intérêt
+à déporter la charge de conception et de maintenance de ses systèmes
+d'informations à un hébergeur de services, spécialisée dans ce domaine.
+En raison d'une plus grande expertise, cette dernière sera en effet beaucoup
+plus performante, engendrant alors une baisse des coûts pour l'entreprise
+cliente.
 
-% Une conséquence sur le matériel utilisé est le remplacement de
-% dizaines de postes de bureau par des clients légers, peu cher et
-% gourmand en ressources. En effet, ceux-ci sont uniquement chargés
-% de fournir à l'utilisateur un affichage, un clavier, une souris et
-% une connexion réseau, le calcul pouvant être effectué sur des serveurs
-% distants.
-
-À noter que cependant que toutes les entreprises n'ont pas forcément
+On notera cependant que toutes les entreprises n'ont pas forcément
 interêt à exporter leur centre de traitement de l'information : par
 exemple des structures reposant sur des données hautement confidentielles
 (recherche de pointe, armée, état, etc.).
@@ -105,7 +101,8 @@ proposent:
 \begin{description}
 	\item[SaaS] Software As A Service, fournir un logiciel
 		(eg. un client email : Gmail\footnote{\url{https://gmail.com}});
-	\item[PaaS] Platform As A Service, fournir un ensemble de logiciels et services
+	\item[PaaS] Platform As A Service, fournir une pile logicielle pour le développement
+		et l'hébergement de services sur un cloud
 		(eg. accès aux Google Apps\footnote{\url{https://www.google.com/enterprise/apps/business/}});
 	\item[IaaS] Infrastructure As A Service, fournir des ressources matérielles
 		(eg. Amazon EC2\footnote{\url{https://aws.amazon.com/ec2/}});
@@ -114,14 +111,14 @@ proposent:
 	\item[] $\ldots$
 \end{description}
 
-En particulier, un cloud \textit{IAAS} fournit à l'utilisateur l'accès
+En particulier, un cloud \textit{IAAS} fournit à l'utilisateur un accès
 à un ensemble de systèmes d'exploitations. Ces derniers sont très
 souvent virtualisés, ce qui présente l'avantage de pouvoir faire tourner
 plusieurs OS sur un même serveur physique. La virtualisation repose sur
 un \textit{hyperviseur}, c'est-à-dire un moniteur de machines virtuelles (VM), dont
-le but est réaliser l'isolation entre les différentes VMs et de les administrer.
-L'administration consiste à démarrer, arrêter, migrer, régler les ressources des
-VMs.
+le but est de réaliser l'isolation entre les différentes VMs ainsi que de les administrer.
+Cette tâche d'administration consiste essentiellement à démarrer, arrêter, migrer,
+régler les ressources desdites VMs.
 
 Par exemple, la figure \ref{hubertfxen} montre l'hyperviseur \textit{Xen}~\cite{barham2003xen}
 sous NetBSD en train de virtualiser un FreeBSD, deux NetBSDs et une Debian.
@@ -133,9 +130,9 @@ sous NetBSD en train de virtualiser un FreeBSD, deux NetBSDs et une Debian.
 \end{figure}
 
 Une problématique pour les gestionnaires d'IAAS est donc de pouvoir placer
-correctement un ensemble donné de VMs sur un ensemble de serveurs physiques.
-Ce placement n'est pas libre : il est régit par un ensemble de contraintes
-qui doivent être satisfaites.
+correctement un ensemble de VMs sur un ensemble de serveurs physiques.
+Ce placement n'est pas libre : il est régit par un ensemble de contraintes,
+éventuellement variables, devant être satisfaites.
 
 \subsection{Motivations}
 La virtualisation présente plusieurs avantages:
@@ -143,13 +140,13 @@ La virtualisation présente plusieurs avantages:
 	\item sur une application dite $n$-tiers, il est possible
 	de placer chaque tiers sur une VM, et éventuellement d'en faire
 	des duplications, ce qui améliore la robustesse de l'application.
-	Par exemple, n cas de défaillance d'un serveur physique, il est
+	Par exemple, en cas de défaillance d'un serveur physique, il est
 	stratégique d'avoir placé le réplicat d'un serveur de base de
 	données sur un serveur différent de l'original;
 	\item l'admninistration et la gestion des machines est simplifiée :
 	il y a moins de hardware, donc moins de maintenance physique;
-	la possibilité de pouvoir cloner/charger/décharger à la volée des
-	VMs permet d'améliorer la QoS facilement. Notamment, dans le cas
+	la possibilité de pouvoir cloner, charger, décharger à la volée des
+	VMs permet d'améliorer la QoS. Notamment, dans le cas
 	où l'administrateur doit effectuer une opération de maintenance sur
 	un serveur physique, il va devoir migrer~\cite{clark2005live} les VMs
 	sur un autre serveur;
@@ -158,9 +155,9 @@ La virtualisation présente plusieurs avantages:
 	de pouvoir compromettre d'autres applications que si elles étaient
 	toutes lancées sous un même OS;
 	\item utilisation plus performante du matériel, lorsqu'un ordinateur
-	puissant peu être utilisé au maximum de ses performances en faisant
+	puissant peut être utilisé au maximum de ses performances en faisant
 	tourner plusieurs systèmes d'exploitations. Cependant, utiliser un
-	serveur à $99\%$ de ses capacités n'est pas judicieux, puisque celui-ci
+	serveur à $99\%$ de ses capacités n'est pas toujours judicieux, puisque celui-ci
 	sera alors incapable d'assurer une augmentation de charge. Il est donc
 	impératif d'éviter une saturation;
 	\item $\ldots$
@@ -176,16 +173,16 @@ physiques se pose alors pour des raisons diverses et variées:
 	\item[maintenance] un serveur physique peut tomber en panne, ou
 		nécessiter une réparation, auquel cas les programmes
 		tournant dessus doivent être migré ailleurs, afin de
-		garantir au client une certaine qualité de service (QoS);
+		garantir au client la qualité de service (QoS) qui lui est due;
 	\item[sécurité] il peut s'avérer risquer pour un programme d'un
 		client traitant des données sensibles (eg. données bancaires)
 		de se retrouver au même endroit qu'un programme d'un
 		autre client;
 	\item[évolution des besoins] où au cours d'un certain intervalle de
 		temps, les besoins en puissance de calcul d'une entreprise
-		peuvent augmenter (suite à une plus grande popularité par
-		exemple), ou encore, augmentation brusque et irrégulière
-		de la charge à des heures de pointes;
+		peuvent croître (suite à une plus grande popularité par
+		exemple), ou encore la charge pouvant augmenter de façon
+		brusque, voire irrégulière, aux heures de pointe;
 	\item[économie d'énergie] où il peut être avantageux de réduire
 		le nombre de serveurs physiques allumés, pour maximiser
 		le rendement des autres machines physiques du cloud;
@@ -194,68 +191,68 @@ physiques se pose alors pour des raisons diverses et variées:
 		de façon à ne pas perdre de temps (et donc en QoS) à redémarrer
 		un autre serveur;		
 	\item[licence] les entreprises fournissant les systèmes de virtualisation
-		proposent des licences selon différents critères (eg. nombre de
-		machines virtuelles lancées, utilisation de ressources (CPU, RAM, etc.));
+		proposent des licences selon différents critères, comme le nombre de
+		machines virtuelles lancées, ou l'utilisation de ressources (CPU, RAM et bande passante
+		principalement);
 	\item[plateforme] plusieurs plateformes de virtualisations sont disponibles
-		(eg. Xen, VMWare, Citrix); une autre contrainte sur la
-		répartition des machines virtuelles se pose alors, un serveur
-		physique ne faisant tourner qu'un seul type de plateforme;
+		(eg. Xen, VMWare, Citrix); comme à un instant donné un serveur physique
+		ne peut faire tourner qu'un seul type de plateforme, une nouvelle contrainte
+		sur la répartition des machines virtuelles se pose.
 	\item[] $\ldots$
 \end{description}
 
 Enfin, on notera que ces besoins fluctuent au cours du temps; les systèmes
 de placement doivent donc être flexibles, au moins à deux niveaux.
-D'abords, ils doivent être \textit{configurable} afin de prendre en compte
-les spécificités et les propriétés, éventuellement variables des applications
+D'abords, ils doivent être \textit{configurables}, afin de prendre en compte
+les spécificités et les propriétés, éventuellement variables, des applications
 et du datacenter. Une deuxième propriété d'\textit{extensibilité} est nécessaire,
-ce afin d'être capable de supporter de nouvelles fonctionnalités au fur et à mesure
+pour être capable de supporter de nouvelles fonctionnalités au fur et à mesure
 de l'évolution des besoins.
 
 \subsection{Défis}
-Afin de compléter le manque de fonctionalités, l'ajout de contraintes à
-la volée est requise. Malgré un contexte fortement combinatoire (eg.
-le placement d'une VM influençant le placement d'autres VMs, la viabilité
-des contraintes), l'approche se doit d'être suffisamment flexible.
+Cette extensibilité passe par un ajout aussi aisé que possible de nouvelles
+contraintes. Le contexte fortement combinatoire (eg. le placement d'une VM
+influe sur celui des autres) rend cette tâche difficle.
 
-La solution proposée par l'algorithme BtrPlace~\footnote{\url{http://btrp.inria.fr/sandbox/about.html};
-il est mis en place dans Entropy~\cite{herm2009}, un manager de clusters}
-va dans ce sens : il utilise la programmation
-par contrainte pour trouver une solution viable au placement, en un temps
-assez \og court \fg\ pour gérer un datacenter conséquent ($5000$ serveurs, $30000$
-VMs en $3$ minutes) de nouvelles contraintes peuvent être ajoutées sous
-formes de plugins Java en une trentaine de lignes de code, etc.
+BtrPlace~\cite{herm2012} est un algorithme de placement de machines virtuelles,
+implémenté dans le manager de clusters Entropy~\cite{herm2009}. Il utilise la programmation par
+contraintes~\cite{rossi-handbook} à travers la bibliothéque Java Choco~\cite{choco}
+pour trouver une solution au placement. L'ajout de nouvelles contraintes en quelques dizaines
+de lignes de code sous forme de plugins garanti le besoin d'extensibilité précédemment
+formulé. Enfin, par rapport aux autres avancées dans ce domaine, BtrPlace trouve
+des solutions de placement assez rapidement, par exemple $3$ minutes pour $5000$
+serveurs et $30000$ VMs.
 
 \subsection{Objectifs}
-Actuellement, les trois/quatres derniers points cités ne sont pas forcément
-formalisés/implémentés complètement. Le projet consiste donc à choisir l'un
-de ces domaines et à l'ammener vers une forme satisfaisante.
+Actuellement, plusieurs des points besoins cités au niveau de la répartitions des
+VMs ne sont pas forcément implémentés ou formalisés entièrement. Le projet consiste
+à choisir l'un de ces domaines et à l'ammener vers une forme satisfaisante.
 
-Le dernier point est celui sur lequel se porte ce projet. Le travail sera
-d'autant plus original que les questions d'économies d'énérgies sont actuellement
-très prisées par les chercheurs au détriment des autres.
+Le dernier point est celui sur lequel porte ce projet, à savoir rendre BtrPlace
+capable de gérer plusieurs types de VMs. Le travail sera
+d'autant plus original que les questions d'économies d'énérgies sont historiquement
+très prisées par les chercheurs, au détriment des autres.
 
-Au sein d'une infrastructure, plusieurs types d'hyperviseurs/de VMs doivent
+Au sein d'une infrastructure, plusieurs types d'hyperviseurs, et donc de VMs, doivent
 être supportés. Afin de satisfaire le critère de flexibilité, on peut avoir
-besoin de changer le système de supervision des VMs d'un serveurs dynamiquement.
-Par exemple, on peut désirer vouloir garantir une certaines proportions
-d'une plateforme donnée, un nombre maximum de plateformes d'un certain type, etc.
+besoin de changer le système de supervision des VMs d'un serveur à la volée.
+Par exemple, on peut désirer vouloir garantir une certaine proportion
+d'une plateforme donnée, un nombre maximum de VMs d'un certain type.
 
-Dans l'état actuel, BtrPlace est incomplet : il ne permet pas de gérer le type
-des VMs/plateformes ni les étapes de reconfiguration. Dans ce sujet,  on
-se propose donc dans un premier temps, d'étendre le modèle actuel
+De ce point de vue, BtrPlace est incomplet : il ne permet pas de gérer le type
+des VMs/plateformes, ni les étapes de reconfiguration nécessaires à un changement
+d'hyperviseur. Dans ce sujet, on étendra donc dans un premier temps le modèle actuel
 pour supporter le typage des infrastructures. C'est-à-dire, fournir
 une implémentation de base permettant d'associer un type à une machine
 virtuelle, et un ensemble de types possibles pour un serveur. En effet,
 ces derniers peuvent ne pas supporter n'importe quel hyperviseur.
 
-Dans un second temps, on modélise et implémente un ensemble de contraintes
+Dans un second temps, on modélisera et implémentera un ensemble de contraintes
 pour contrôler les plateformes selon leur type. Par exemple, on peut limiter le
-nombre de plateformes d'un type donné, interdire un changement de type
-sur un serveur, etc.
+nombre de plateformes d'un type donné ou encore interdire un changement de type
+sur un serveur.
 
-\subsection{Scénarios}
-On reprend l'exemple précèdent sur la figure \ref{reconf} avec des
-informations plus proches de ce qu'il se passe en réalité.
+\subsection{Scénario}
 \begin{figure}[!ht]
 	\centering
 	\subfigure[Avant la reconfiguration] {
@@ -281,13 +278,13 @@ temps être migrées sur un autre serveur.
 
 Puis, $N_1$ doit s'éteindre et redémarrer en changeant son système
 de virtualisation. Enfin, la $VM_3$ est déplacée sur $N_1$, et $N_2$ peut
-être éteint, pour arriver dans l'état décrit par le diagramme \ref{endreconf}.
+être éteint. L'état final est décrit par le diagramme \ref{endreconf}.
 
 \subsection{Critère de succès}
 L'extension apportée à BtrPlace devra supporter correctement les problèmes
-de dépendances en le placement des VMs, le typage des serveurs et l'éventuel
+de dépendances sur le placement des VMs, le typage des serveurs et les éventuels
 changement dynamique de type de ceux-ci. Enfin, les contraintes doivent être
-censées, bien définies et répondre à des besoins concrets.
+censées, bien définies, et répondre à des besoins concrets.
 
 \section{État de l'art}
 \subsection{Description générale}
@@ -295,37 +292,12 @@ Historiquement, les gestionnaires de placement se sont concentrés sur
 le placement des VMs selon leurs besoins en ressources (CPU, RAM, BP, etc.),
 tout en cherchant à réduire la consommation énergétique
 
-Traditionnellement, ces approches reposent sur des algorithmes ad'hoc rapides
-pour répartir les VMs. D'autres algorithmes plus flexible ont vu le jours
+Traditionnellement, ces approches reposent sur des algorithmes ad'hoc, rapides,
+pour répartir les VMs. D'autres algorithmes plus flexibles ont vu le jour
 suite aux demandes des clients, par exemple portant sur la fiabilité des
 applications.
 
-% Jung et al. proposent d'utiliser une fonction d'utilité pour les
-% applications à haute disponibilité et performance. Leur solution
-% porte sur la défaillance de serveurs physique, mais pas sur des
-% changements de charge. Un algorithme glouton calcule le nombre de
-% réplicats nécessaires pour chaque composant de l'application, de
-% façon à satisfaire les besoins en temps de latence du réseau et
-% en performance. Les réplicats peuvent être placés sur des racks
-% ou des datacenters différents selon le degré voulu de fiabilité.
-% (phrase pas claire). Ajouter de nouveaux paramètres, tels que la
-% gestion des types de serveurs, demande de revoir l'algorithme
-% de reconfiguration. Les tests sont limités à un datacenter d'une
-% douzaine de serveurs.
-% 
-% VMWare DRS donne à l'adminstrateur un accès à $4$ contraintes
-% similaires aux versions de \textit{ban}, \textit{fence}, \textit{gather} et
-% \textit{spread} de BtrPlace. Cependant, leur version de \textit{spread}
-% ne garantit pas que lors du déplacement d'une VM, l'ancienne
-% version ne va pas tourner en même temps que la nouvelle.
-% DRS n'est pas prévu pour être étendu, et $5$ des contraintes
-% de BtrPlace y sont manquantes. De plus, DRS ne choisit pas
-% automatiquement en fonction des propriétés d'une VM entre
-% une re-instantiation ou une migration à chaud. (induced re-location?)
-% Enfin, DRS ne permet d'administrer que des clusters de $32$
-% serveurs.
-
-Une approche prise par \cite{jung2010} consiste à utiliser une fonction
+L'approche prise par \cite{jung2010} consiste à utiliser une fonction
 d'utilité pour les applications à haute disponibilité. Leur solution
 est prévue pour fonctionner dans le cas d'une défaillance d'un serveur
 physique, mais n'est nullement adaptée pour répondre à des changements
@@ -333,7 +305,7 @@ de charge. De plus, l'ajout de nouveaux paramètres tels que la gestion
 des types des serveurs nécessite de revoir l'algorithme de reconfiguration.
 Enfin, les tests sont limités à un datacenter d'une douzaine de serveurs.
 
-VMWare DRS suit une approche similaire à celle de BtrPlace en donnant
+VMWare DRS~\cite{DRS} suit une approche similaire à celle de BtrPlace, en donnant
 à l'administrateur un accès à quelques contraintes (plus ou moins
 équivalentes à \textit{ban}, \textit{fence}, \textit{gather} et \textit{spread}).
 Cependant, leur version de \textit{spread} ne garantit pas que lors
@@ -347,21 +319,21 @@ est utilisée pour placer les VMs sur un nombre minimum de serveur.
 L'ordonnancement des actions nécessaires à la migration étant calculé
 avec une heuristique ad'hoc, il est impossible d'ajouter des
 contraintes telles que \textit{spread}, qui affectent l'ordonnancement.
-Finalement, toutes les VMs en marche sont prises en compte lors
-de la résolution d'un mauvais placement, ce qui limite le nombre
+Finalement, l'algorithme prend en compte toutes les VMs en marche lorsqu'il
+cherche à résoudre un mauvaise placement, ce qui en pratique limite le nombre
 de serveurs gérés à quelques centaines.
 
 Récemment, de nouvelles approches plus flexibles ont vu le jour;
 elles permettent d'intégrer des contraintes de placement à la
-demande. Bin et al. utilise aussi la programmation par contraintes
+demande. Bin et al. utilisent aussi la programmation par contraintes
 pour fournir un gestionnaire de placement modulaire. Ils
-permettent une haute-disponibilité en guarantissant qu'à chaque instant,
-un certains nombre de serveurs sera disponible pour satisfaire
-la consommation de ressources des VMs et les contraintes de
+permettent une haute-disponibilité en garantissant qu'à chaque instant,
+un certain nombre de serveurs sera disponible pour satisfaire
+la consommation de ressources des VMs, et les contraintes de
 déplacement. Lorsqu'un serveur a de fortes chances de tomber en panne,
-les VMs sont migrés sur un autre capable de les satisfaire. Le modèle
+les VMs sont migrées sur un autre, capable de satisfaire leurs besoins. Le modèle
 proposé ne supporte pas les contraintes portant sur la gestion de
-l'état des serveurs, l'ordonnancement des actions ou encore sur la
+l'état des serveurs, l'ordonnancement des actions, ou encore sur la
 façon dont les VMs sont migrées. Enfin, l'extensibilité n'a été
 vérifiée que pour $32$ serveurs physiques et $128$ VMs au maximum.
 
@@ -372,7 +344,7 @@ aux VMs, leur placement et l'étape de migration. \cite{herm2012}
 des datacenters de plusieurs centaines de serveurs. BtrPlace
 est donc à l'heure actuelle le gestionnaire le plus efficace en
 ce qui concerne le placement de VMs, tout en rendant possible
-de contrôler l'état des serveurs et les sur-allocations de ressources.
+le contrôle de l'état des serveurs et les sur-allocations de ressources.
 L'addition d'une dizaine de nouvelles contraintes répondant à
 ces besoins démontre une extensibilité correcte. L'utilisation
 d'une heuristique basée sur une optimisation de filtre

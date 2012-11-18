@@ -9,4 +9,4 @@ bibtex $a.aux
 pdflatex $a.tex
 pdflatex $a.tex
 
-rm $a.toc $a.log $a.aux $a.bbl $a.blg 2>/dev/null
+rm $a.toc $a.log $a.aux $a.bbl $a.blg $a.out 2>/dev/null
