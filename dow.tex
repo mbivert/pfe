@@ -387,6 +387,8 @@ statut garantissant sa complétude vis-à-vis du travail fourni.
 	\textbf{Id} & \textbf{Titre du lot} & \textbf{Type} & \textbf{Budget} & \textbf{Début (inclus)} & \textbf{Fin (inclus)} \\
 	\hline
 	\hline
+% |awk -F'&' '$1 = /L_[0-9]*/ { print $4; }' | sed 's/\$//g' | tr -s '
+% ' '+'
 	$L_1$ & Management du projet & MGMT & $38$ & $S_3$ & $S_{20}$ \\
 	\hline
 	$T_{1.1}$ & Planification & MGMT & $19$ & $S_3$ & $S_{20}$ \\
@@ -397,13 +399,13 @@ statut garantissant sa complétude vis-à-vis du travail fourni.
 	\hline
 	$L_3$ & Cahier des charges & REDAC & $38$ & $S_3$ & $S_4$ \\
 	\hline
-	$L_4$ & Extension pour le typage & IMPL & $38$ & $S_6$ & $S_{12}$ \\
+	$L_4$ & Extension pour le typage & RECH/IMPL & $57$ & $S_6$ & $S_{12}$ \\
 	\hline
-	$L_5$ & Ensemble de contraintes & RECH/IMPL & $38$ & $S_{13}$ & $S_{17}$ \\
+	$L_5$ & Ensemble de contraintes & RECH/IMPL & $57$ & $S_{13}$ & $S_{17}$ \\
 	\hline
 	$T_{5.1}$ & Formalisation des contraintes & RECH & $19$ & $S_{13}$ & $S_{14}$ \\
 	\hline
-	$T_{5.2}$ & Implémentation des contraintes & IMPL & $19$ & $S_{15}$ & $S_{17}$ \\
+	$T_{5.2}$ & Implémentation des contraintes & IMPL & $38$ & $S_{15}$ & $S_{17}$ \\
 	\hline
 	$L_6$ & Rédaction du rapport & REDAC & $38$ & $S_3$ & $S_{20}$ \\
 	\hline
@@ -488,20 +490,55 @@ description textuelle:
 \end{itemize}
 Enfin, comme mentionné à plusieurs reprises auparavant, les contraintes ne peuvent
 être implémentées sans un système de typage fonctionnel dans BtrPlace.
+
 \subsection{Description des lots}
-Le lot concernant le typage vise à modifier BtrPlace afin de permettre le typage
+% |awk -F'&' '$1 = /L_[0-9]*/ { print "\\subsection{", $2, "}"; }'
+\subsection{  Management du projet  }
+Le lot de management regroupe les tâches nécessaires à la planification du
+projet et à son suivi. Notamment, la partie planifaction, décrite dans le
+cachier des charges, découpe le projet en plusieurs livrables,
+dont la réalisation est elle même découpée en lots et tâches.
+
+La partie suivi est effectuée tout au long du projet, pour s'assurer par
+exemple qu'aucun retard n'est pris par rapport au planning prévisionnel.
+
+\subsection{  Étude bibliographique  }
+On cherche ici à obtenir une vue d'ensemble du domaine, ce qui implique
+d'avoir des notions dans par exemple:
+\begin{itemize}
+	\item les différents systèmes de virtualisation;
+	\item les besoins typiques d'une équipe d'administration de cloud;
+	\item le fonctionnement de BtrPlace, et son positionnement par rapport
+		à d'autres gestionnaire de placement;
+\end{itemize}
+\subsection{  Cahier des charges  }
+Il sert à définir le travail et l'environnement dans lequel celui-ci
+se déroule. Aussi, il spécifie la façon dont le projet est sensé se dérouler
+du début à la fin.
+
+\subsection{  Extension pour le typage  }
+On cherce ici à modifier BtrPlace afin de permettre le typage
 des machines virtuelles et des nœuds. Pour cela, il est nécessaire d'utiliser un
 nouveau type de \textit{slice}. Dans le cadre de BP, une slice est une façon
 de modéliser le comportement d'une VM lors d'un changement de configuration.
 
 Une fois ce formalisme implémenté, le typage proprement dit pourra commencer.
-
-Le lots concernant les contraintes vise à utiliser la partie précèdente et
+\subsection{  Ensemble de contraintes  }
+Le lot concernant les contraintes vise à utiliser la partie précèdente et
 des besoins concrets pour modéliser puis implémenter des plugins utilisant
 le typage des nœuds.
+\subsection{  Rédaction du rapport  }
+Afin de garder une trace de ce qui a été fait, le rapport est indispensable.
+Son établissement régulier permet de plus de s'en servir comme carnet de bord.
 
-On trouvera des exemples d'utilisation et une description plus détaillées
-dans la section \og Objectifs \fg.
+Il contient une description du projet et du cadre dans lequel il se déroule,
+ainsi qu'une description des problèmes identifiés, et les résultats des
+solutions proposées.
+
+\subsection{  Création du support de présentation  }
+Lors de la présentation finale, le support de présentation sert à donner
+un indicateur visuel aux spectateurs, tout en aidant le présentateur dans
+son discours. Il résume ce qui a été fait pendant la durée du projet.
 
 \subsection{Résumé de l'effort}
 Comme pour tout projet de recherche, le rapport se devra d'être soigné, ce afin
@@ -510,6 +547,11 @@ facilement extensible par plugins, l'implémentation des contraintes devrait
 prendre moins de temps et être plus facile que la mise en place du système de
 typage. Cette dernière nécessite en effet d'augmenter le modèle interne de
 BtrPlace.
+
+Du côté de l'encadrant, celui-ci doit être disponible pour les meetings
+visant à vérifier l'avancement du projet, et à discuter des problèmes. Il
+doit aussi fournir une aide pour la rédaction du rapport de recherche, et
+former l'étudiant à l'utilisation et au fonctionnement de BtrPlace.
 
 \subsection{Gestion du risque}
 En cas de blocage sur l'implémentation du typage, une réfléxion sur
