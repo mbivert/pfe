@@ -1,0 +1,62 @@
+svn checkout --username anonsvn https://scm.gforge.inria.fr/svn/entropy/branches/entropy-fh
+
+/home/mb/pfe/rapport.tex
+
+«.git/hooks/pre-commit
+  #!/bin/sh
+  
+  # replace tab by 4 spaces in java files
+  
+  if git rev-parse --verify HEAD >/dev/null 2>&1
+  then
+  	against=HEAD
+  else
+  	# Initial commit: diff against an empty tree object
+  	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+  fi
+  
+  # XXX --cached need to be removed ?
+  git diff --name-only $against | grep '\.java$' | while read f; do
+  	cat <<EOF | /bin/ed $f
+  ,s/	/    /g
+  wq
+  EOF
+  done
+»
+
+entropy-fh/src/test/java/entropy/vjob/constraint/TestContinuousSpread.java
+entropy-fh/src/main/java/entropy/vjob/ContinuousSpread.java
+entropy-fh/src/main/java/entropy/plan/
+entropy-fh/src/main/java/entropy/vjob/ContinuousSpread.java
+entropy-fh/src/main/java/entropy/plan/choco/actionModel/slice
+entropy-fh/src/main/java/entropy/plan/choco/ReconfigurationProblem.java
+entropy-fh/src/main/java/entropy/plan/choco/DefaultReconfigurationProblem.java
+
+% grep -i 'reified' `{ du -a | awk '/\.java$/ { printf("%s ", $2); }'}
+du -a | grep -i ActionModel
+
+Pourquoi plateforme représentée sous forme de String dans
+entropy-fh/src/main/java/entropy/configuration/SimpleNode.java:43
+alors qu'il existe:
+entropy-fh/src/main/java/entropy/platform/Platform.java
+entropy-fh/src/main/java/entropy/platform/any/AnyPlatform.java
+
+-> plus léger.
+
+Placer les contraintes sur le type de VMs dans
+entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/Platform.java ?
+
+entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/StaticPlatform.java
+
+problème de nommage ou de documentation entre les deux fichiers de
+entropy-fh/src/main/java/choco/cp/solver/constraints/reified/
+
+exemple d'utilisation des contraintes:
+/home/mb/pfe/entropy-fh/src/main/java/entropy/vjob/ContinuousSpread.java
+
+entropy-fh/src/main/java/entropy/plan/choco/actionModel/
+entropy-fh/src/main/java/entropy/plan/choco/actionModel/slice/
+
+# added files (Mon Dec  3 15:21:17 CET 2012)
+entropy-fh/src/main/java/entropy/plan/choco/actionModel/RetypeNodeActionModel.java
+entropy-fh/src/main/java/entropy/plan/action/Retype.java 
