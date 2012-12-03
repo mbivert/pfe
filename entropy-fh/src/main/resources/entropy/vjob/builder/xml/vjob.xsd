@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright (c) Fabien Hermenier
+  ~
+  ~        This file is part of Entropy.
+  ~
+  ~        Entropy is free software: you can redistribute it and/or modify
+  ~        it under the terms of the GNU Lesser General Public License as published by
+  ~        the Free Software Foundation, either version 3 of the License, or
+  ~        (at your option) any later version.
+  ~
+  ~        Entropy is distributed in the hope that it will be useful,
+  ~        but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~        GNU Lesser General Public License for more details.
+  ~
+  ~        You should have received a copy of the GNU Lesser General Public License
+  ~        along with Entropy.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="vjob">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="vms">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="vm" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="constraints">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="constraint" minOccurs="0" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="vm">
+        <xs:complexType>
+            <xs:sequence minOccurs="0" maxOccurs="1">
+                <xs:element ref="options"/>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string"/>
+            <xs:attribute name="tpl" type="xs:string"/>
+            <xs:attribute name="ref" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="options">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="option" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="constraint">
+        <xs:complexType>
+            <xs:sequence minOccurs="1" maxOccurs="1">
+                <xs:element ref="params"/>
+            </xs:sequence>
+            <xs:attribute name="id" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="option">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="id" type="xs:string" use="required"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="params">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element ref="set"/>
+                            <xs:element ref="vm"/>
+                            <xs:element ref="node"/>
+                            <xs:element ref="int"/>
+                            <xs:element ref="double"/>
+                            <xs:element ref="string"/>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="node">
+        <xs:complexType>
+            <xs:attribute name="ref" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="int">
+        <xs:complexType>
+            <xs:attribute name="value" type="xs:int"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="string">
+        <xs:complexType>
+            <xs:attribute name="value" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="double">
+        <xs:complexType>
+            <xs:attribute name="value" type="xs:double"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="set">
+        <xs:complexType>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:choice>
+                    <xs:element ref="set"/>
+                    <xs:element ref="vm"/>
+                    <xs:element ref="node"/>
+                    <xs:element ref="int"/>
+                    <xs:element ref="double"/>
+                    <xs:element ref="string"/>
+                </xs:choice>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

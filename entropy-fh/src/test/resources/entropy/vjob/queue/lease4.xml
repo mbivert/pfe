@@ -1,0 +1,8 @@
+<vjob id="lease1">
+    <vms>
+        <vm id="po" tpl="tiny">
+            <options/>
+        </vm>
+    </vms>
+    <constraints/>
+</vjob>

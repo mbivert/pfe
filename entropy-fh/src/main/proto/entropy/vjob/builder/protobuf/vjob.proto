@@ -1,0 +1,66 @@
+/**
+ * Protobuf message to describe a vjob.
+ * @author Fabien Hermenier
+ */
+
+option java_package = "entropy.vjob.builder.protobuf";
+
+option java_outer_classname = "PBVJob";
+
+message vjob {
+
+    required string id = 1;
+
+    repeated VMDecl vm = 2;
+
+    repeated Constraint constraint = 3;
+
+    message Option {
+        required string id = 1;
+        optional string value = 2;
+    }
+    message VMDecl {
+        required string id = 1;
+        optional string tplName = 2;
+        repeated Option option = 3;
+    }
+
+    message Set {
+        enum Type {
+            SET = 1;
+            VM = 2;
+            NODE = 3;
+            INT = 4;
+            DOUBLE = 5;
+            STRING = 6;
+        }
+        required Type type = 1;
+        repeated string ref = 2; //The reference to the VM or node identifier
+        repeated Set set = 3;
+        repeated int32 val = 4;
+        repeated double dval = 5;
+        repeated string sval = 6;
+    }
+
+    message Constraint {
+        required string id = 1;
+        repeated Param param = 2;
+    }
+
+    message Param {
+        enum Type {
+            SET = 1;
+            VM = 2;
+            NODE = 3;
+            INT = 4;
+            DOUBLE = 5;
+            STRING = 6;
+        }
+        required Type type = 1;
+        optional string ref = 2; //The reference to the VM or node identifier
+        optional Set set = 3;
+        optional int32 val = 4;
+        optional double dval = 5;
+        optional string sval = 6;
+    }
+}

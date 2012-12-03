@@ -1,0 +1,338 @@
+<!--
+  ~ Copyright (c) Fabien Hermenier
+  ~
+  ~        This file is part of Entropy.
+  ~
+  ~        Entropy is free software: you can redistribute it and/or modify
+  ~        it under the terms of the GNU Lesser General Public License as published by
+  ~        the Free Software Foundation, either version 3 of the License, or
+  ~        (at your option) any later version.
+  ~
+  ~        Entropy is distributed in the hope that it will be useful,
+  ~        but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~        GNU Lesser General Public License for more details.
+  ~
+  ~        You should have received a copy of the GNU Lesser General Public License
+  ~        along with Entropy.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<vjob id="sysadmin">
+    <vms>
+        <vm id="clients.foo.VM1" tpl="mediumVMs"/>
+
+        <vm id="clients.foo.VM2" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM3" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM4" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM5" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM6" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM7" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM8" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM9" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM10" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM11" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM12" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM13" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM14" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM15" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM16" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM17" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM18" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM19" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM20" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM21" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM22" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM23" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM24" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM25" tpl="mediumVMs"/>
+        <vm id="clients.foo.VM26" tpl="tinyVMs">
+            <options>
+                <option id="volatile"/>
+            </options>
+        </vm>
+        <vm id="clients.foo.VM27" tpl="tinyVMs">
+            <options>
+                <option id="volatile"/>
+            </options>
+        </vm>
+        <vm id="clients.foo.VM28" tpl="tinyVMs">
+            <options>
+                <option id="volatile"/>
+            </options>
+        </vm>
+        <vm id="clients.foo.VM29" tpl="tinyVMs">
+            <options>
+                <option id="volatile"/>
+            </options>
+        </vm>
+
+        <vm id="clients.foo.VM30" tpl="tinyVMs">
+
+
+        </vm>
+        <vm id="clients.bar.VM1" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM2" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM3" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM4" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM5" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM6" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM7" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM8" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM9" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM10" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM11" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM12" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM13" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM14" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM15" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM16" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM17" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM18" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM19" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM20" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM21" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM22" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM23" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM24" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM25" tpl="mediumVMs">
+
+        </vm>
+        <vm id="clients.bar.VM26" tpl="tinyVMs">
+            <options>
+                <option id="volatile"/>
+            </options>
+        </vm>
+        <vm id="clients.bar.VM27" tpl="tinyVMs">
+            <options>
+                <option id="volatile"/>
+                <option id="start">7</option>
+            </options>
+        </vm>
+        <vm id="clients.bar.VM28" tpl="tinyVMs">
+            <options>
+                <option id="volatile"/>
+                <option id="stop">7</option>
+            </options>
+        </vm>
+        <vm id="clients.bar.VM29" tpl="tinyVMs">
+            <options>
+                <option id="volatile"/>
+            </options>
+        </vm>
+        <vm id="clients.bar.VM30" tpl="tinyVMs">
+            <options>
+                <option id="volatile"/>
+            </options>
+        </vm>
+    </vms>
+    <constraints>
+        <constraint id="fence">
+            <params>
+                <param>
+                    <set>
+                        <vm ref="clients.foo.VM1"/>
+                        <vm ref="clients.foo.VM2"/>
+                        <vm ref="clients.foo.VM3"/>
+                        <vm ref="clients.foo.VM4"/>
+                        <vm ref="clients.foo.VM5"/>
+                        <vm ref="clients.foo.VM6"/>
+                        <vm ref="clients.foo.VM7"/>
+                        <vm ref="clients.foo.VM8"/>
+                        <vm ref="clients.foo.VM9"/>
+                        <vm ref="clients.foo.VM10"/>
+                        <vm ref="clients.foo.VM11"/>
+                        <vm ref="clients.foo.VM12"/>
+                        <vm ref="clients.foo.VM13"/>
+                        <vm ref="clients.foo.VM14"/>
+                        <vm ref="clients.foo.VM15"/>
+                        <vm ref="clients.foo.VM16"/>
+                        <vm ref="clients.foo.VM17"/>
+                        <vm ref="clients.foo.VM18"/>
+                        <vm ref="clients.foo.VM19"/>
+                        <vm ref="clients.foo.VM20"/>
+                        <vm ref="clients.foo.VM21"/>
+                        <vm ref="clients.foo.VM22"/>
+                        <vm ref="clients.foo.VM23"/>
+                        <vm ref="clients.foo.VM24"/>
+                        <vm ref="clients.foo.VM25"/>
+                        <vm ref="clients.foo.VM26"/>
+                        <vm ref="clients.foo.VM27"/>
+                        <vm ref="clients.foo.VM28"/>
+                        <vm ref="clients.foo.VM29"/>
+                        <vm ref="clients.foo.VM30"/>
+                    </set>
+                </param>
+                <param>
+                    <set>
+                        <node ref="node-9"/>
+                        <node ref="node-10"/>
+                        <node ref="node-11"/>
+                        <node ref="node-12"/>
+                    </set>
+                </param>
+            </params>
+        </constraint>
+        <constraint id="ban">
+            <params>
+                <param>
+                    <set>
+                        <vm ref="clients.bar.VM1"/>
+                        <vm ref="clients.bar.VM2"/>
+                        <vm ref="clients.bar.VM3"/>
+                        <vm ref="clients.bar.VM4"/>
+                        <vm ref="clients.bar.VM5"/>
+                        <vm ref="clients.bar.VM6"/>
+                        <vm ref="clients.bar.VM7"/>
+                        <vm ref="clients.bar.VM8"/>
+                        <vm ref="clients.bar.VM9"/>
+                        <vm ref="clients.bar.VM10"/>
+                        <vm ref="clients.bar.VM11"/>
+                        <vm ref="clients.bar.VM12"/>
+                        <vm ref="clients.bar.VM13"/>
+                        <vm ref="clients.bar.VM14"/>
+                        <vm ref="clients.bar.VM15"/>
+                        <vm ref="clients.bar.VM16"/>
+                        <vm ref="clients.bar.VM17"/>
+                        <vm ref="clients.bar.VM18"/>
+                        <vm ref="clients.bar.VM19"/>
+                        <vm ref="clients.bar.VM20"/>
+                        <vm ref="clients.bar.VM21"/>
+                        <vm ref="clients.bar.VM22"/>
+                        <vm ref="clients.bar.VM23"/>
+                        <vm ref="clients.bar.VM24"/>
+                        <vm ref="clients.bar.VM25"/>
+                        <vm ref="clients.bar.VM26"/>
+                        <vm ref="clients.bar.VM27"/>
+                        <vm ref="clients.bar.VM28"/>
+                        <vm ref="clients.bar.VM29"/>
+                        <vm ref="clients.bar.VM30"/>
+                        <vm ref="clients.foo.VM1"/>
+                        <vm ref="clients.foo.VM2"/>
+                        <vm ref="clients.foo.VM3"/>
+                        <vm ref="clients.foo.VM4"/>
+                        <vm ref="clients.foo.VM5"/>
+                        <vm ref="clients.foo.VM6"/>
+                        <vm ref="clients.foo.VM7"/>
+                        <vm ref="clients.foo.VM8"/>
+                        <vm ref="clients.foo.VM9"/>
+                        <vm ref="clients.foo.VM10"/>
+                        <vm ref="clients.foo.VM11"/>
+                        <vm ref="clients.foo.VM12"/>
+                        <vm ref="clients.foo.VM13"/>
+                        <vm ref="clients.foo.VM14"/>
+                        <vm ref="clients.foo.VM15"/>
+                        <vm ref="clients.foo.VM16"/>
+                        <vm ref="clients.foo.VM17"/>
+                        <vm ref="clients.foo.VM18"/>
+                        <vm ref="clients.foo.VM19"/>
+                        <vm ref="clients.foo.VM20"/>
+                        <vm ref="clients.foo.VM21"/>
+                        <vm ref="clients.foo.VM22"/>
+                        <vm ref="clients.foo.VM23"/>
+                        <vm ref="clients.foo.VM24"/>
+                        <vm ref="clients.foo.VM25"/>
+                        <vm ref="clients.foo.VM26"/>
+                        <vm ref="clients.foo.VM27"/>
+                        <vm ref="clients.foo.VM28"/>
+                        <vm ref="clients.foo.VM29"/>
+                        <vm ref="clients.foo.VM30"/>
+                    </set>
+                </param>
+                <param>
+                    <set>
+                        <node ref="node-1"/>
+                    </set>
+                </param>
+            </params>
+        </constraint>
+        <constraint id="capacity">
+            <params>
+                <param>
+                    <set>
+                        <node ref="node-1"/>
+                        <node ref="node-2"/>
+                        <node ref="node-3"/>
+                    </set>
+                </param>
+                <param>
+                    <int value="5"/>
+                </param>
+            </params>
+        </constraint>
+        <constraint id="among">
+            <params>
+                <param>
+                    <set>
+                        <vm ref="clients.foo.VM28"/>
+                        <vm ref="clients.foo.VM29"/>
+                        <vm ref="clients.foo.VM30"/>
+                    </set>
+                </param>
+                <param>
+                    <set>
+                        <set>
+                            <node ref="node-1"/>
+                            <node ref="node-2"/>
+                            <node ref="node-3"/>
+                        </set>
+                        <set>
+                            <node ref="node-4"/>
+                            <node ref="node-5"/>
+                            <node ref="node-6"/>
+                        </set>
+
+                    </set>
+                </param>
+
+            </params>
+        </constraint>
+    </constraints>
+</vjob>

@@ -64,13 +64,25 @@
 	\item[Nœud] serveur physique, noté $n \in \mathcal N$,doté d'un
 		type courant $T(n)$ et d'un ensemble de types possibles
 		$\mathcal{T}_n$;
+	\item[Reconfiguration] opération durant laquelle BtrPlace change le
+		placement des VMs sur les nœuds, en fonction des contraintes
+		établies par l'utilisateur;
+	\item[Slices] la modélisation des actions de reconfiguration~\cite{herm2012}
+		est réalisée à l'aide de \textit{slices}, qui correspondent à
+		une durée finie pendant un processus de reconfiguration, durant laquelle
+		des ressources sont utilisées. On distingue deux types de slices:
+	\begin{description}
+		\item[consuming slice], $c \in \mathcal C$, où les ressources sont
+			utilisées au début de la reconfiguration;
+		\item[demanding slice], $d \in \mathcal D$, où les ressources sont
+		utilisées à la fin de la reconfiguration;
+	\end{description}
 \end{description}
 
 La fonction $T$ associe à une VM ou un nœud son type; la fonction $P$
 associe à une VM un nœud.
 
-Le type d'un nœud est considéré	 comme une dimension, au même titre
-que la capacité calculatoire et la mémoire disponible. Cette dimension
+Un nœud est doté d'une nouvelle dimension de type.Celle-ci
 est booléenne : soit le type change, auquel cas, la valeur est de $1$,
 sinon, elle vaut $0$. Dans les graphes suivants, elle est représentée
 à part pour des questions de lisibilité.
@@ -90,22 +102,25 @@ Sur la figure \ref{config}, $v_1$ et $v_2$ sont deux machines
 virtuelles de types différents, par exemple Xen et VMWare.
 Pour simplifier le problème, on ne considère que des actions
 de démarrage et d'éteignage pour les VMs. En effet, on pourrait
-remplacer celles-ci par des migrations par exemple, mais cela
-nécessiterait de mettre en ligne d'autres nœuds.
+remplacer celles-ci par des migrations par exemple, ce qui
+nécessiterait de mettre en ligne d'autres nœuds, donc d'augmenter
+la complexité de la configuration.
 
 L'opération de déploiement sur le nœud $n_1$ se résume à:
 \begin{enumerate}
+	\item mettre hors-ligne $v_1$;
 	\item éteindre $n_1$;
 	\item allumer $n_1$ en changeant son type, c'est-à-dire en changeant
 		son hyperviseur.
+	\item démarrer $v_2$;
 \end{enumerate}
 Le temps $T_d$ pris par cette opération est spécifié par l'admninistrateur
-du datacenter.
+du datacenter dans la configuration de BtrPlace.
 
 Pour que la reconfiguration puisse avoir lieu, les contraintes suivantes
 doivent être respectées:
 \begin{itemize}
-	\item L'opération de déploiement ne peut commencer que lorsque
+	\item Par convention, l'opération de changement de type commence quand
 		l'utilisation mémoire de $n_1$ est nulle, ie. lorsqu'aucune VM
 		ne tourne dessus;
 	\item $d_0^{st} \geq c^{ed}$;
@@ -119,48 +134,20 @@ problématique:
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=.45]{imgs/config2.eps}
-	\caption{\label{config} Exemple de configuration mettant en œuvre un
-		changement de type; $v_1$ est mise hors-ligne, $v_2$ est allumée}
+	\caption{\label{config2} Exemple similaire à celui de la figure
+		\ref{config}, mais sans changement de type, les deux VMs sont
+		donc du même type; $v_1$ est mise hors-ligne, $v_2$ est allumée}
 \end{figure}
 
+\section{Formalisation}
+Le placement est satisfait ssi chaque VM est bien placée sur
+un nœud de même type, ie.:
+\[
+	(\forall v \in \mathcal V), (\exists n \in \mathcal N), P(v) = n
+		\Rightarrow T(n) = T(v)	
+\]
 
-% \section{Formalisation}
-% Le placement est satisfait ssi chaque VM est bien placée sur
-% un nœud de même type, ie.:
-% \[
-% 	(\forall v \in \mathcal V), (\exists n \in \mathcal N), P(v) = n
-% 		\Rightarrow T(n) = T(v)	
-% \]
-% 
-% L'un des cas possible pour satisfaire cette condition et de changer le
-% type courant d'une machine virtuelle. Une action de déploiement doit
-% alors être mise en place.
-% 
-% La modélisation d'actions de reconfiguration est définie dans ~\cite{herm2012}.
-% Elles sont réalisées à l'aide de \textit{slices}, qui correspondent à
-% une durée finie pendant un processus de reconfiguration, durant laquelle
-% des ressources sont utilisées.
-% On distingue plusieurs types de slices:
-% \begin{description}
-% 	\item[consuming slice], $c \in \mathcal C$, où les ressources sont
-% 		utilisées au début de la reconfiguration;
-% 	\item[demanding slice], $d \in \mathcal D$, où les ressources sont
-% 		utilisées à la fin de la reconfiguration;
-% 	\item[middle slice], $m \in \mathcal M$, où les ressources sont utilisées
-% 		entre le début et la fin du processus (XXX ambigüe, notation).
-% \end{description}
-% 
-% L'opération de déploiement peut s'exprimer en fonction de ces slices:
-% \begin{enumerate}
-% 	\item l'état initial (c-slice) lors de la reconfiguration contient les
-% 		VMs de l'ancien type devant être déplacées sur un autre serveur ;
-% 	\item l'état intermédiaire (m-slice) représente le changement de type,
-% 		c'est-à-dire le changement de système de virtualisation. Il
-% 		peut être vu comme consommant toutes les ressources disponibles
-% 		sur le nœud;
-% 	\item l'état final (d-slice) où les VMs du nouveau type sont migrées sur
-% 		le nœud.
-% \end{enumerate}
+Cette contrainte doit être implémentée dans BtrPlace via Choco.
 
 \newpage
 \selectlanguage{francais}

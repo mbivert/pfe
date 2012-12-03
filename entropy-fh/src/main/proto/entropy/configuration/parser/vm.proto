@@ -1,0 +1,35 @@
+/**
+ * 
+ * @author Fabien Hermenier
+ */
+
+option java_package = "entropy.configuration.parser";
+
+option java_outer_classname = "PBVirtualMachine";
+
+message VirtualMachine {
+    required string name = 1;
+
+    optional int32 nbOfCPUs = 2;
+
+    optional int32 memoryConsumption = 3;
+
+    optional int32 cpuConsumption = 4;
+
+    optional int32 memoryDemand = 5;
+
+    optional int32 cpuDemand = 6;
+
+    optional int32 cpuMax = 7;
+
+    optional string template = 8;
+
+    optional string hostingPlatform = 9;
+
+    repeated Option options = 10;
+
+    message Option {
+        required string key = 1;
+        optional string value = 2;
+    }
+}

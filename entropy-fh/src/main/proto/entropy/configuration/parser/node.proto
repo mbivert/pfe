@@ -1,0 +1,31 @@
+/**
+ * 
+ * @author Fabien Hermenier
+ */
+
+option java_package = "entropy.configuration.parser";
+
+option java_outer_classname = "PBNode";
+
+message Node {
+    required string name = 1;
+    optional int32 nbOfCPUs = 2;
+    optional int32 memoryCapacity = 3;
+    optional int32 cpuCapacity = 4;
+
+    optional string ip = 5;
+    optional string mac = 6;
+    optional string currentPlatform = 7;
+
+    repeated Platform platforms = 8;
+
+    message Platform {
+        required string name = 1;
+        repeated Option options = 2;
+
+        message Option {
+            required string key = 1;
+            optional string value = 2;
+        }
+    }
+}
