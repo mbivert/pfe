@@ -64,6 +64,8 @@
 	\item[Nœud] serveur physique, noté $n \in \mathcal N$,doté d'un
 		type courant $T(n)$ et d'un ensemble de types possibles
 		$\mathcal{T}_n$;
+	\item[Déploiement] opération de redémarrage de nœud, éventuellement
+		accompagnée d'un changement de type pour le nœud.
 	\item[Reconfiguration] opération durant laquelle BtrPlace change le
 		placement des VMs sur les nœuds, en fonction des contraintes
 		établies par l'utilisateur;
@@ -80,7 +82,7 @@
 \end{description}
 
 La fonction $T$ associe à une VM ou un nœud son type; la fonction $P$
-associe à une VM un nœud.
+associe à une VM ou une slice un nœud.
 
 Un nœud est doté d'une nouvelle dimension de type.Celle-ci
 est booléenne : soit le type change, auquel cas, la valeur est de $1$,
@@ -127,17 +129,45 @@ doivent être respectées:
 	\item $d_1^{st} \geq T_d$;
 \end{itemize}
 
-\subsection{Sans changement de type}
-On observe maintenant ce qu'il se passe si le type reste constant, de
-façon à s'assurer que l'ajout d'une nouvelle dimension ne soit pas
-problématique:
-\begin{figure}[!ht]
-	\centering
-	\includegraphics[scale=.45]{imgs/config2.eps}
-	\caption{\label{config2} Exemple similaire à celui de la figure
-		\ref{config}, mais sans changement de type, les deux VMs sont
-		donc du même type; $v_1$ est mise hors-ligne, $v_2$ est allumée}
-\end{figure}
+\subsection{Type connu à l'avance}
+Lorsque le nouveau type est une propriété du modèle qui n'a pas à être
+déterminée par le solveur, le problème peut être simplifié. L'utilisation
+d'une slice pour la dimension de temps devient inutile; on peut se contenter
+de deux variables indiquant les temps de début et de fin de l'opération de
+déploiement, respectivement notés $D^\mathrm{st}$ et $D^\mathrm{ed}$.
+
+Le type du nœud étant modifié, les VMs présentes au début de la reconfiguration
+doivent nécessairement être déplacées ou migrées, suivant les autres
+contraintes. Les nouvelles VMs peuvent alors être placées à l'aide de
+la contrainte \textit{fence}, d'une façon similaire à ce qui se passe dans
+\textit{entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/StaticPlatform.java:40}.
+
+Pour satisfaire le placement sur un nœud $n$, deux contraintes supplémentaires sont
+données au solveur:
+\begin{enumerate}
+	\item Les anciennes VMs partent avant le début de l'opération de
+		redéploiement, c'est-à-dire,
+\[
+	(\forall c \in \mathcal C), P(c) = n \Rightarrow c^\mathrm{ed} \leq D^\mathrm{st}
+\]
+	\item Les nouvelles VMs arrivent une fois le redéploiement terminé,
+		c'est-à-dire:
+\[
+	(\forall d \in \mathcal D), P(d) = n \Rightarrow d^\mathrm{st} \geq D^\mathrm{ed}
+\]
+\end{enumerate}
+
+% \subsection{Sans changement de type}
+% On observe maintenant ce qu'il se passe si le type reste constant, de
+% façon à s'assurer que l'ajout d'une nouvelle dimension ne soit pas
+% problématique:
+% \begin{figure}[!ht]
+% 	\centering
+% 	\includegraphics[scale=.45]{imgs/config2.eps}
+% 	\caption{\label{config2} Exemple similaire à celui de la figure
+% 		\ref{config}, mais sans changement de type, les deux VMs sont
+% 		donc du même type; $v_1$ est mise hors-ligne, $v_2$ est allumée}
+% \end{figure}
 
 \section{Formalisation}
 Le placement est satisfait ssi chaque VM est bien placée sur
