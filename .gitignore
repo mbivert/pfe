@@ -6,4 +6,5 @@
 *.class
 *.svn
 imgs/*.pdf
+*.txt
 entropy-fh/target/*

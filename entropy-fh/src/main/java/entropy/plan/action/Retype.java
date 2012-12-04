@@ -2,9 +2,7 @@ package entropy.plan.action;
 
 import entropy.configuration.Configuration;
 import entropy.configuration.Node;
-import entropy.execution.TimedExecutionGraph;
-import entropy.plan.parser.TimedReconfigurationPlanSerializer;
-import entropy.plan.visualization.PlanVisualizer;
+
 
 public class Retype extends Startup {
     private String newPlatform;
@@ -15,15 +13,13 @@ public class Retype extends Startup {
     }
 
     public Retype(Node n, String newPlatform) {
-        super(n);
-        this.newPlatform = newPlatform;
+    	this(n, 0, 0, newPlatform);
     }
 
-    public String getNewPlatform() {
-        return newPlatform;
-    }
-
-    public void setNewPlatform(String newPlatform) {
-        this.newPlatform = newPlatform;
-    }
+    @Override
+	public boolean apply(Configuration c) {
+		boolean b = this.getNode().setCurrentPlatform(newPlatform);
+		c.addOnline(this.getNode()); // never fail
+		return b;
+	}
 }

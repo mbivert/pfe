@@ -7,8 +7,7 @@ import entropy.configuration.VirtualMachine;
 import entropy.configuration.Node;
 import entropy.plan.action.Action;
 import entropy.plan.action.Retype;
-// import entropy.plan.action.Shutdown;
-// import entropy.plan.action.Startup;
+import entropy.plan.action.Shutdown;
 import entropy.plan.choco.ReconfigurationProblem;
 import entropy.plan.choco.actionModel.slice.ConsumingSlice;
 import entropy.plan.choco.actionModel.slice.DemandingSlice;
@@ -34,16 +33,6 @@ public class RetypeNodeActionModel extends NodeActionModel {
         duration = model.createIntegerConstant("d(retype(" + n.getName() + ")",
             dur);
 
-        /* /home/mb/pfe/entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/StaticPlatform.java:40
-        ReInstantiateActionModel.java
-         */
-        /* XXX in Retype?
-        put the node offline so that the VMs will move
-        ManagedElementSet<Node> nodes = new ManagedElementSet<Node>();
-        nodes.add(n);
-        Offline(nodes);
-         */
-
         ManagedElementSet<VirtualMachine> vms = model.getSourceConfiguration().getRunnings(n);
 
         for (VirtualMachine vm : vms) {
@@ -51,23 +40,14 @@ public class RetypeNodeActionModel extends NodeActionModel {
             model.post(model.leq(c.end(), cSlice.end()));
         }
 
-        List<DemandingSlice> ds = model.getDemandingSlices();
-        /* deployment time; where is model.plus() defined? */
-/*
-        IntDomainVar td = createBoundIntVar("("+dSlice.getName()+")+"
-            +RETYPE_DURATION,
-            dSlice.start().getInf()+RETYPE_DURATION,
-            dSlice.start().getSup()+RETYPE_DURATION);
-*/
-
         /*
          * constrain only VMs that may move on this node.
          * take an arbitrary node where the VM can be located, and compare
          * its platform type to newPlatform
          */
+        List<DemandingSlice> ds = model.getDemandingSlices();
         for (DemandingSlice d : ds)
             if (model.getNode(d.hoster().getInf()).getCurrentPlatform().equals(newPlatform))
-//                model.post(model.geq(d.start(), td));
                 model.post(model.geq(d.start(), model.plus(dSlice.start(), RETYPE_DURATION)));
     }
 
@@ -98,21 +78,16 @@ public class RetypeNodeActionModel extends NodeActionModel {
     @Override
     public List<Action> getDefinedAction(ReconfigurationProblem solver) {
         ArrayList<Action> l = new ArrayList<Action>();
-/*
+
         l.add(new Shutdown(getNode(),
             start().getVal(),
             cSlice.end().getVal()));
-        l.add(new Retype(getNode(),
-            start().getVal(),
-            end().getVal()));
-        l.add(new Startup(getNode(),
-            cSlice.end().getVal()+RETYPE_DURATION,
-            end().getVal()));
-*/
-	l.add(new Retype(getNode(),
-		start().getVal(),
-		end().getVal(),
-		newPlatform));
+
+		l.add(new Retype(getNode(),
+			start().getVal(),
+			end().getVal(),
+			newPlatform));
+
         return l;
     }
 
