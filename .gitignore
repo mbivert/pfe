@@ -6,3 +6,4 @@
 *.class
 *.svn
 imgs/*.pdf
+entropy-fh/target/*

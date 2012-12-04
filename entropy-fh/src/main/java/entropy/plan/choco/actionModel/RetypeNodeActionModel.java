@@ -2,31 +2,37 @@ package entropy.plan.choco.actionModel;
 
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import entropy.configuration.Configuration;
-// import entropy.configuration.ManagedElementSet;
+import entropy.configuration.ManagedElementSet;
 import entropy.configuration.VirtualMachine;
+import entropy.configuration.Node;
 import entropy.plan.action.Action;
 import entropy.plan.action.Retype;
 // import entropy.plan.action.Shutdown;
 // import entropy.plan.action.Startup;
 import entropy.plan.choco.ReconfigurationProblem;
 import entropy.plan.choco.actionModel.slice.ConsumingSlice;
+import entropy.plan.choco.actionModel.slice.DemandingSlice;
+
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * An action to model the retyping of node, when
  * the new type is already known.
  */
-public class RetypeNodeActionModel extends NodeActionModel.java {
+public class RetypeNodeActionModel extends NodeActionModel {
     public final static int RETYPE_DURATION = 42;
+    public final static String newPlatform = "XXX";
 
-    public BootNodeActionModel(ReconfigurationProblem model, Node n, int d) {
+    public RetypeNodeActionModel(ReconfigurationProblem model, Node n, int dur) {
         super(n);
         cSlice = new ConsumingSlice(model, "retype(" + n.getName() + ")",
-            n, n.getCPUCapacity(), n.getMemoryCapacity(), d);
+            n, n.getCPUCapacity(), n.getMemoryCapacity(), dur);
         dSlice = new DemandingSlice(model, "retype(" + n.getName() + ")",
             model.getNode(n), n.getCPUCapacity(), n.getMemoryCapacity());
 
-        duration = model.createIntegerConstant("d(retype(" + n.getName() + "))",
-            d);
+        duration = model.createIntegerConstant("d(retype(" + n.getName() + ")",
+            dur);
 
         /* /home/mb/pfe/entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/StaticPlatform.java:40
         ReInstantiateActionModel.java
@@ -38,14 +44,31 @@ public class RetypeNodeActionModel extends NodeActionModel.java {
         Offline(nodes);
          */
 
-        VirtualMachine[] vms = model.getVirtualMachines();
+        ManagedElementSet<VirtualMachine> vms = model.getSourceConfiguration().getRunnings(n);
 
-        foreach (VirtualMachine vm : vms) {
-            ConsumingSlice c = new ConsumingSlice(model, "retype(" + vm.getName() + ")",
-                model.getSourceConfiguration().getLocation(vm),
-                vm.getCPUConsumption(), vm.getMemoryConsumption());
+        for (VirtualMachine vm : vms) {
+            ConsumingSlice c = model.getAssociatedAction(vm).getConsumingSlice();
             model.post(model.leq(c.end(), cSlice.end()));
         }
+
+        List<DemandingSlice> ds = model.getDemandingSlices();
+        /* deployment time; where is model.plus() defined? */
+/*
+        IntDomainVar td = createBoundIntVar("("+dSlice.getName()+")+"
+            +RETYPE_DURATION,
+            dSlice.start().getInf()+RETYPE_DURATION,
+            dSlice.start().getSup()+RETYPE_DURATION);
+*/
+
+        /*
+         * constrain only VMs that may move on this node.
+         * take an arbitrary node where the VM can be located, and compare
+         * its platform type to newPlatform
+         */
+        for (DemandingSlice d : ds)
+            if (model.getNode(d.hoster().getInf()).getCurrentPlatform().equals(newPlatform))
+//                model.post(model.geq(d.start(), td));
+                model.post(model.geq(d.start(), model.plus(dSlice.start(), RETYPE_DURATION)));
     }
 
     /**
@@ -79,15 +102,17 @@ public class RetypeNodeActionModel extends NodeActionModel.java {
         l.add(new Shutdown(getNode(),
             start().getVal(),
             cSlice.end().getVal()));
-*/
         l.add(new Retype(getNode(),
             start().getVal(),
             end().getVal()));
-/*
         l.add(new Startup(getNode(),
             cSlice.end().getVal()+RETYPE_DURATION,
             end().getVal()));
 */
+	l.add(new Retype(getNode(),
+		start().getVal(),
+		end().getVal(),
+		newPlatform));
         return l;
     }
 
