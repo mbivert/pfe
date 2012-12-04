@@ -17,6 +17,8 @@ public class TestRetype {
     public void testApply() {
         Configuration c = new SimpleConfiguration();
         Node n1 = new SimpleNode("n1", 1, 2, 3);
+        n1.addPlatform("foo");
+        n1.addPlatform("bar");
         n1.setCurrentPlatform("foo");
         c.addOffline(n1);
         Retype s = new Retype(n1, "bar");

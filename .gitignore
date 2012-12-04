@@ -8,3 +8,5 @@
 imgs/*.pdf
 *.txt
 entropy-fh/target/*
+entropy-fh/.idea*
+entropy-fh/entropy.iml
