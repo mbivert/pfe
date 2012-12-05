@@ -99,7 +99,6 @@ public class DefaultTimedReconfigurationPlan implements TimedReconfigurationPlan
 
     @Override
     public boolean add(Action ta) {
-
         //Check the action is compatible with the configuration
         if (statedDestination && !ta.isCompatibleWith(this.source, this.destination)) {
             return false;

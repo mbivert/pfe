@@ -214,6 +214,11 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
     private int[] grpId; //The group ID of each node
 
     /**
+     * The node which will need to change their hypervisor
+     */
+    private HashMap<Node, String> willChangePlatform;
+
+    /**
      * Build a reconfiguration problem. All the VMs are candidate
      * for management
      *
@@ -239,20 +244,11 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
 
     }
 
-    /**
-     * Make a new model.
-     *
-     * @param src        The source configuration. It must be viable.
-     * @param run        The set of virtual machines that must be running at the end of the process
-     * @param wait       The set of virtual machines that must be waiting at the end of the process
-     * @param sleep      The set of virtual machines that must be sleeping at the end of the process
-     * @param stop       The set of virtual machines that must be terminated at the end of the process
-     * @param manageable the set of virtual machines to consider as manageable in the problem
-     * @param on         The set of nodes that must be online at the end of the process
-     * @param off        The set of nodes that must be offline at the end of the process
-     * @param eval       the evaluator to estimate the duration of an action.
-     * @throws entropy.plan.PlanException if an error occurred while building the model
-     */
+    /*
+     * just add willChangePlatform; can't be done with a constructor
+     * calling this() because makeBasicActions() needs to have willChangePlatform.
+     * (and this() would be called first in a new constructor)
+     *//*
     public DefaultReconfigurationProblem(Configuration src,
                                          ManagedElementSet<VirtualMachine> run,
                                          ManagedElementSet<VirtualMachine> wait,
@@ -261,7 +257,8 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
                                          ManagedElementSet<VirtualMachine> manageable,
                                          ManagedElementSet<Node> on,
                                          ManagedElementSet<Node> off,
-                                         DurationEvaluator eval) throws PlanException {
+                                         DurationEvaluator eval,
+                                         HashMap<Node, String> willChangePlatform) throws PlanException {
         source = src;
         this.manageable = manageable;
         runnings = run;
@@ -271,6 +268,7 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
         onlines = on;
         offlines = off;
         durationEval = eval;
+        this.willChangePlatform = willChangePlatform;
 
         checkDisjointSet();
         if (!Configurations.currentlyOverloadedNodes(source).isEmpty()) {
@@ -328,6 +326,101 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
         }
         nodesGrp = new HashMap<ManagedElementSet<Node>, Integer>();
         revNodesGrp = new ArrayList<ManagedElementSet<Node>>(MAX_NB_GRP);
+
+    }    */
+
+    /**
+     * Make a new model.
+     *
+     * @param src        The source configuration. It must be viable.
+     * @param run        The set of virtual machines that must be running at the end of the process
+     * @param wait       The set of virtual machines that must be waiting at the end of the process
+     * @param sleep      The set of virtual machines that must be sleeping at the end of the process
+     * @param stop       The set of virtual machines that must be terminated at the end of the process
+     * @param manageable the set of virtual machines to consider as manageable in the problem
+     * @param on         The set of nodes that must be online at the end of the process
+     * @param off        The set of nodes that must be offline at the end of the process
+     * @param eval       the evaluator to estimate the duration of an action.
+     * @throws entropy.plan.PlanException if an error occurred while building the model
+     */
+    public DefaultReconfigurationProblem(Configuration src,
+                                         ManagedElementSet<VirtualMachine> run,
+                                         ManagedElementSet<VirtualMachine> wait,
+                                         ManagedElementSet<VirtualMachine> sleep,
+                                         ManagedElementSet<VirtualMachine> stop,
+                                         ManagedElementSet<VirtualMachine> manageable,
+                                         ManagedElementSet<Node> on,
+                                         ManagedElementSet<Node> off,
+                                         DurationEvaluator eval) throws PlanException {
+        source = src;
+        this.manageable = manageable;
+        runnings = run;
+        waitings = wait;
+        sleepings = sleep;
+        terminated = stop;
+        onlines = on;
+        offlines = off;
+        durationEval = eval;
+
+        willChangePlatform = ((SimpleConfiguration) src).getWillChangePlatform();
+
+        checkDisjointSet();
+        if (!Configurations.currentlyOverloadedNodes(source).isEmpty()) {
+            for (Node n : Configurations.currentlyOverloadedNodes(source)) {
+                System.err.println(n + ": " + source.getRunnings(n));
+                for (VirtualMachine vm : source.getRunnings(n)) {
+                    System.err.print(vm + " ");
+                }
+                System.err.println();
+                System.err.println(n.getCPUCapacity() - ManagedElementSets.sum(source.getRunnings(n), ResourcePicker.VMRc.cpuConsumption)[0]);
+                System.err.println(n.getMemoryCapacity() - ManagedElementSets.sum(source.getRunnings(n), ResourcePicker.VMRc.memoryConsumption)[0]);
+            }
+            System.err.println(source.getOfflines().size() + " offline(s); " + source.getWaitings().size() + "waitings");
+            throw new NonViableSourceConfigurationException(source, Configurations.currentlyOverloadedNodes(source).get(0));
+        }
+
+        start = this.makeConstantIntVar(0);
+        end = createBoundIntVar("end", 0, MAX_TIME);
+        post(geq(end, start));
+
+        ManagedElementSet<VirtualMachine> all = source.getAllVirtualMachines().clone();
+        //We have to add the future waiting and running VMs as they have to be managed through an Instantiate action
+        all.addAll(wait);
+        all.addAll(runnings);
+        vms = all.toArray(new VirtualMachine[all.size()]);
+        revVMs = new TIntIntHashMap(vms.length);
+        for (int i = 0; i < vms.length; i++) {
+            revVMs.put(vms[i].hashCode(), i);
+        }
+        ManagedElementSet<Node> ns = source.getAllNodes();
+        nodes = ns.toArray(new Node[ns.size()]);
+        grpId = new int[ns.size()];
+        revNodes = new TIntIntHashMap(ns.size());
+        for (int i = 0; i < nodes.length; i++) {
+            revNodes.put(nodes[i].hashCode(), i);
+        }
+
+        makeResourcesCapacities();
+
+        try {
+            makeBasicActions();
+        } catch (DurationEvaluationException e) {
+            throw new PlanException(e.getMessage(), e);
+        }
+
+
+        vmGrp = new ArrayList<IntDomainVar>(vms.length);
+        for (int i = 0; i < vms.length; i++) {
+            vmGrp.add(i, null);
+        }
+        vmsGrp = new HashMap<ManagedElementSet<VirtualMachine>, IntDomainVar>();
+        nodeGrps = new ArrayList<TIntArrayList>(nodes.length);
+        for (int i = 0; i < nodes.length; i++) {
+            nodeGrps.add(i, new TIntArrayList());
+        }
+        nodesGrp = new HashMap<ManagedElementSet<Node>, Integer>();
+        revNodesGrp = new ArrayList<ManagedElementSet<Node>>(MAX_NB_GRP);
+
     }
 
     @Override
@@ -660,6 +753,11 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
                     ShutdownableNodeActionModel a = new ShutdownableNodeActionModel(this, n, durationEval.evaluateShutdown(n));
                     nodesActions.set(getNode(a.getNode()), a);
                 }
+            }
+
+            if (willChangePlatform.containsKey(n)) {
+                RetypeNodeActionModel a = new RetypeNodeActionModel(this, n, 42, willChangePlatform.get(n));
+                nodesActions.set(getNode(a.getNode()), a);
             }
         }
 
@@ -1057,8 +1155,10 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
         for (NodeActionModel action : getNodeMachineActions()) {
             //TODO: quite dirty approach
             if (action instanceof BootableNodeActionModel2
-                    || action instanceof BootNodeActionModel) {
+                    || action instanceof BootNodeActionModel
+                    || action instanceof RetypeNodeActionModel) {
                 for (Action a : action.getDefinedAction(this)) {
+                    System.err.println(a);
                     if (!plan.add(a)) {
                         Plan.logger.warn("Action " + a + " is not added into the plan");
                     }

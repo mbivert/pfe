@@ -1,7 +1,9 @@
 package entropy.plan.action;
 
 import entropy.configuration.Configuration;
+import entropy.configuration.ManagedElementSet;
 import entropy.configuration.Node;
+import entropy.configuration.SimpleNode;
 
 
 public class Retype extends Startup {
@@ -18,8 +20,18 @@ public class Retype extends Startup {
 
     @Override
 	public boolean apply(Configuration c) {
-		boolean b = this.getNode().setCurrentPlatform(newPlatform);
-		c.addOnline(this.getNode()); // never fail
+        Node newNode = this.getNode().clone();
+        ManagedElementSet<Node> nodes = c.getOnlines();
+        nodes.remove(this.getNode());
+
+
+		boolean b = newNode.setCurrentPlatform(newPlatform);
+		c.addOnline(newNode); // never fail
 		return b;
 	}
+
+    @Override
+    public boolean isCompatibleWith(Configuration src) {
+        return true;
+    }
 }
