@@ -15,7 +15,7 @@ public class TestRetypeNodeActionModel {
     public void testActionDetectionAndCreation() {
         Configuration src = new SimpleConfiguration();
 //        Configuration dst = new SimpleConfiguration();
-        Node n = new SimpleNode("N1", 1, 1, 1);
+        Node n = new SimpleNode("N1", 2, 42, 42);
         n.addPlatform("foo");        // old platform
         n.addPlatform("bar");        // new -
         n.setCurrentPlatform("foo");
@@ -48,8 +48,8 @@ public class TestRetypeNodeActionModel {
 //        Assert.assertEquals(rt.getFinishMoment(), 8);
 //        Assert.assertEquals(a.getDuration().getVal(), 8);
 
-       // rt.apply(dst);
-//        System.err.println(m.extractSolution().getDestination());
+//        System.err.println(m.extractSolution().getDestination().hashCode());
+
         for (Node n1 : m.extractSolution().getDestination().getAllNodes()) {
             SimpleNode n2 = (SimpleNode) n1;
             if (n2.getName().equals("N1")) {

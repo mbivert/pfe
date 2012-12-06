@@ -1,5 +1,6 @@
 package entropy.plan.choco.actionModel;
 
+import choco.kernel.solver.ContradictionException;
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import entropy.configuration.Configuration;
 //import entropy.configuration.ManagedElementSet;
@@ -76,7 +77,7 @@ public class RetypeNodeActionModel extends ManageableNodeActionModel {
 
         l.add(new Shutdown(getNode(), 0, 1));
 
-		l.add(new Retype(getNode(), 1+RETYPE_DURATION, 0, newPlatform));
+		l.add(new Retype(getNode(), 1+RETYPE_DURATION, 2+RETYPE_DURATION, newPlatform));
 
         return l;
     }

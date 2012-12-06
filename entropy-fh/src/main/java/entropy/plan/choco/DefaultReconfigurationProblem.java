@@ -1180,7 +1180,8 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
         }
 
         for (NodeActionModel action : getNodeMachineActions()) {
-            if (action instanceof ShutdownNodeActionModel || action instanceof ShutdownableNodeActionModel) {
+            if (action instanceof ShutdownNodeActionModel || action instanceof ShutdownableNodeActionModel
+                    || action instanceof  RetypeNodeActionModel) {
                 for (Action a : action.getDefinedAction(this)) {
                     if (!plan.add(a)) {
                         Plan.logger.warn("Action " + a + " is not added into the plan");
