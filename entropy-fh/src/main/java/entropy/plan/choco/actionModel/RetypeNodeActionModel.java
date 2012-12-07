@@ -23,7 +23,6 @@ import java.util.ArrayList;
  */
 public class RetypeNodeActionModel extends ManageableNodeActionModel {
     public final static int RETYPE_DURATION = 42;
-//    public final static int RETYPE_START = 42;
 
     private String newPlatform;
     private IntDomainVar required;
@@ -77,7 +76,7 @@ public class RetypeNodeActionModel extends ManageableNodeActionModel {
 
         l.add(new Shutdown(getNode(), 0, 1));
 
-		l.add(new Retype(getNode(), 1+RETYPE_DURATION, 2+RETYPE_DURATION, newPlatform));
+		l.add(new Retype(getNode(), 1, 1+RETYPE_DURATION, newPlatform));
 
         return l;
     }

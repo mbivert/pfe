@@ -248,7 +248,7 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
      * just add willChangePlatform; can't be done with a constructor
      * calling this() because makeBasicActions() needs to have willChangePlatform.
      * (and this() would be called first in a new constructor)
-     *//*
+     */
     public DefaultReconfigurationProblem(Configuration src,
                                          ManagedElementSet<VirtualMachine> run,
                                          ManagedElementSet<VirtualMachine> wait,
@@ -327,7 +327,7 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
         nodesGrp = new HashMap<ManagedElementSet<Node>, Integer>();
         revNodesGrp = new ArrayList<ManagedElementSet<Node>>(MAX_NB_GRP);
 
-    }    */
+    }
 
     /**
      * Make a new model.
@@ -362,7 +362,7 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
         offlines = off;
         durationEval = eval;
 
-        willChangePlatform = ((SimpleConfiguration) src).getWillChangePlatform();
+        willChangePlatform = new HashMap<Node, String>();
 
         checkDisjointSet();
         if (!Configurations.currentlyOverloadedNodes(source).isEmpty()) {

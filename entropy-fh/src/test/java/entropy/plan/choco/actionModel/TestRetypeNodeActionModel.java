@@ -10,6 +10,8 @@ import entropy.plan.durationEvaluator.DurationEvaluator;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
+
 @Test(groups = {"unit", "RP-core"})
 public class TestRetypeNodeActionModel {
     public void testActionDetectionAndCreation() {
@@ -19,7 +21,8 @@ public class TestRetypeNodeActionModel {
         n.addPlatform("foo");        // old platform
         n.addPlatform("bar");        // new -
         n.setCurrentPlatform("foo");
-        ((SimpleConfiguration) src).willChange(n, "bar");
+        HashMap<Node,String> willChange =new HashMap<Node, String>();
+        willChange.put(n, "bar");
         src.addOnline(n);
 //        dst.addOffline(n);
 //        ReconfigurationProblem m = TimedReconfigurationPlanModelHelper.makeBasicModel(src, dst);
@@ -29,7 +32,8 @@ public class TestRetypeNodeActionModel {
         ManagedElementSet<VirtualMachine> empty = new SimpleManagedElementSet<VirtualMachine>();
         ReconfigurationProblem m = null;
         try {
-            m = new DefaultReconfigurationProblem(src, empty, empty, empty, empty, empty, on, off, null);
+            m = new DefaultReconfigurationProblem(src, empty, empty,
+                    empty, empty, empty, on, off, null, willChange);
         }
         catch(entropy.plan.PlanException e) {
             System.err.println(e);

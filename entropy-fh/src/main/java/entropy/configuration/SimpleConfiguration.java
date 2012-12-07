@@ -60,8 +60,6 @@ public class SimpleConfiguration implements Configuration, Cloneable {
 
     private Map<Node, ManagedElementSet<VirtualMachine>>[] hosted;
 
-    private HashMap<Node, String> willChangePlatform;
-
     /**
      * Build an empty configuration.
      */
@@ -85,17 +83,6 @@ public class SimpleConfiguration implements Configuration, Cloneable {
         this.allNodes = new SimpleManagedElementSet<Node>();
         this.allVMs = new SimpleManagedElementSet<VirtualMachine>();
         this.vmPlace = new HashMap<VirtualMachine, Node>();
-        this.willChangePlatform = new HashMap<Node, String>();
-    }
-
-    public HashMap<Node, String> getWillChangePlatform() {
-        return this.willChangePlatform;
-    }
-
-    public void willChange(Node n, String p) {
-        if (willChangePlatform.containsKey(n))
-            return;
-        willChangePlatform.put(n, p);
     }
 
     private boolean switchState(Node n, int newState) {
