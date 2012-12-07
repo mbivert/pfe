@@ -23,7 +23,7 @@ public class TestRetype {
         c.addOffline(n1);
         Retype s = new Retype(n1, "bar");
         s.apply(c);
-        Assert.assertTrue(c.getOnlines().contains(n1));
-        Assert.assertEquals(n1.getCurrentPlatform(), "bar");
+        Node nAfter = c.getOnlines().get(n1.getName());
+        Assert.assertEquals("bar", nAfter.getCurrentPlatform());
     }
 }

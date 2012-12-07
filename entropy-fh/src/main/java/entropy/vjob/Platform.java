@@ -168,7 +168,7 @@ public class Platform implements PlacementConstraint {
 
         Platform q = (Platform) o;
 
-        return nodes.equals(q.nodes);
+        return nodes.equals(q.nodes) && newPlatform.equals(q.newPlatform);
     }
 
     @Override

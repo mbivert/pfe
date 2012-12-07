@@ -20,13 +20,8 @@ public class Retype extends Startup {
 
     @Override
 	public boolean apply(Configuration c) {
-        System.err.println("DBG");
-
         Node newNode = this.getNode().clone();
-        ManagedElementSet<Node> nodes = c.getOnlines();
-        nodes.remove(this.getNode());
-
-//        System.err.println(c.hashCode());
+        c.remove(this.getNode());
 
         boolean b = newNode.setCurrentPlatform(newPlatform);
 		c.addOnline(newNode); // never fail

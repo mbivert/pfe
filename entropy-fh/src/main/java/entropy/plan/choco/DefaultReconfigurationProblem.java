@@ -676,6 +676,7 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
             } else {
                 //? -> running means  ? -> instantiate -> running
                 momentVMReady[getVirtualMachine(vm)] = createBoundIntVar("", 0, MAX_TIME);
+                System.err.println(durationEval);
                 int d = vm.getOption("boot") != null ? Integer.parseInt(vm.getOption("boot")) : durationEval.evaluateRun(vm);
                 int f = durationEval.evaluateForge(vm);
                 a = new RunActionModel(this, vm, d, f);
@@ -756,7 +757,7 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
             }
 
             if (willChangePlatform.containsKey(n)) {
-                RetypeNodeActionModel a = new RetypeNodeActionModel(this, n, 42, willChangePlatform.get(n));
+                RetypeNodeActionModel a = new RetypeNodeActionModel(this, n, 1, 1, willChangePlatform.get(n));
                 nodesActions.set(getNode(a.getNode()), a);
             }
         }
@@ -1156,7 +1157,7 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
             //TODO: quite dirty approach
             if (action instanceof BootableNodeActionModel2
                     || action instanceof BootNodeActionModel
-                    || action instanceof RetypeNodeActionModel) {
+                    /*|| action instanceof RetypeNodeActionModel*/) {
                 for (Action a : action.getDefinedAction(this)) {
                     System.err.println(a);
                     if (!plan.add(a)) {

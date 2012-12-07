@@ -22,23 +22,28 @@ import java.util.ArrayList;
  * the new type is already known.
  */
 public class RetypeNodeActionModel extends ManageableNodeActionModel {
-    public final static int RETYPE_DURATION = 42;
+    public final static int RETYPE_DURATION = 1;
 
     private String newPlatform;
     private IntDomainVar required;
 
+    private IntDomainVar dRetype;
+    private IntDomainVar dShutdown;
+
     public RetypeNodeActionModel(ReconfigurationProblem model, Node n, int d) {
-        this(model, n, d, "any");
+        this(model, n, 1, d, "any");
     }
 
-    public RetypeNodeActionModel(ReconfigurationProblem model, Node n, int dur, String newPlatform) {
+    public RetypeNodeActionModel(ReconfigurationProblem model, Node n, int dShut, int dRet,String newPlatform) {
         super(n);
         required = model.createIntegerConstant("", 1);
-        //cSlice = new ConsumingSlice(model, "retype(" + n.getName() + ")", n, n.getCPUCapacity(), n.getMemoryCapacity());
 
-        duration = model.createIntegerConstant("d(retype(" + n.getName() + ")",
-            dur);
+        dShutdown = model.createIntegerConstant("d(shutdown_in_retype("+n.getName()+")", dShut);
+        dRetype = model.createIntegerConstant("d(retype_only("+n.getName()+")", dRet);
 
+        duration = model.createIntegerConstant("d(retype(" + n.getName() + ")", dShut+dRet);
+
+        model.post(model.leq(dShut+dRet + 1, model.getEnd()));
         this.newPlatform = newPlatform;
     }
 
@@ -57,7 +62,7 @@ public class RetypeNodeActionModel extends ManageableNodeActionModel {
      */
     @Override
     public IntDomainVar start() {
-        return cSlice.start();
+        return dShutdown;
     }
 
     /**
@@ -67,16 +72,16 @@ public class RetypeNodeActionModel extends ManageableNodeActionModel {
      */
     @Override
     public IntDomainVar end() {
-        return dSlice.end();
+        return duration;
     }
 
     @Override
     public List<Action> getDefinedAction(ReconfigurationProblem solver) {
         ArrayList<Action> l = new ArrayList<Action>();
 
-        l.add(new Shutdown(getNode(), 0, 1));
+        l.add(new Shutdown(getNode(), 0, dShutdown.getVal()));
 
-		l.add(new Retype(getNode(), 1, 1+RETYPE_DURATION, newPlatform));
+		l.add(new Retype(getNode(), dShutdown.getVal(), dShutdown.getVal()+dRetype.getVal(), newPlatform));
 
         return l;
     }

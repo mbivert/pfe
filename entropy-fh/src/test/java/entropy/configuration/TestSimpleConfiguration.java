@@ -413,6 +413,9 @@ public class TestSimpleConfiguration {
         Assert.assertFalse(c.getAllVirtualMachines().contains(vm1));
         Assert.assertFalse(c.getRunnings(n1).contains(vm1));
         Assert.assertNull(c.getLocation(vm1));
+
+        Assert.assertTrue(c.remove(n1));
+        Assert.assertTrue(c.getAllNodes().isEmpty());
     }
 
     /**

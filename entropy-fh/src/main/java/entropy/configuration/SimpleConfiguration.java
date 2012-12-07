@@ -173,6 +173,7 @@ public class SimpleConfiguration implements Configuration, Cloneable {
                 hosted[i].remove(n);
             }
             nodesByState[curState + IDX_SHIFT].remove(n);
+            allNodes.remove(n);
         }
         return true;
     }
