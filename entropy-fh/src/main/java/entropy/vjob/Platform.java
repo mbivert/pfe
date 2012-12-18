@@ -19,23 +19,23 @@
 
 package entropy.vjob;
 
-import choco.kernel.solver.ContradictionException;
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import entropy.configuration.*;
 import entropy.plan.choco.ReconfigurationProblem;
-import entropy.plan.choco.actionModel.ManageableNodeActionModel;
 import entropy.plan.choco.actionModel.RetypeNodeActionModel;
-import entropy.plan.choco.actionModel.slice.ConsumingSlice;
 import entropy.plan.choco.actionModel.slice.DemandingSlice;
 import entropy.vjob.builder.protobuf.PBVJob;
 import entropy.vjob.builder.protobuf.ProtobufVJobSerializer;
 import entropy.vjob.builder.xml.XmlVJobSerializer;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 /* XXX .ordinal to get integer */
 enum AllPlatform {
     FOO("foo"),
     BAR("bar"),
-    BAZ("baz");
+    BAZ("baz"),
+    ANY("any");
     private String name;
 
     AllPlatform(String name) {
@@ -50,7 +50,8 @@ enum AllPlatform {
 
 public class Platform implements PlacementConstraint {
     private ManagedElementSet<Node> nodes;
-    String newPlatform;
+    private HashMap<Node, String> willChange;
+    private int dShutdown;
 
     private static final ManagedElementSet<VirtualMachine> empty = new SimpleManagedElementSet<VirtualMachine>();
 
@@ -59,19 +60,25 @@ public class Platform implements PlacementConstraint {
      *
      * @param nodes the nodes to put online
      */
-    public Platform(ManagedElementSet<Node> nodes, String newPlatform) {
+    public Platform(ManagedElementSet<Node> nodes, HashMap<Node,String> willChange, int dShutdown) {
         this.nodes = nodes;
-        this.newPlatform = newPlatform;
+        this.dShutdown = dShutdown;
+        this.willChange = willChange;
     }
 
     public Platform(ManagedElementSet<Node> nodes) {
-        this(nodes, "any");
+        this(nodes, new HashMap<Node, String>(), 1);
     }
 
+    /**
+     *
+     * @return true if every node that will change its platform are in node & if the new platform is valid
+     */
     private boolean isValidPlatform() {
-        for (Node n : nodes)
-            if (!n.getAvailablePlatforms().contains(newPlatform))
+        for (Node n : willChange.keySet())
+            if (!n.getAvailablePlatforms().contains(willChange.get(n)) || !nodes.contains(n))
                 return false;
+
         return true;
     }
 
@@ -80,41 +87,41 @@ public class Platform implements PlacementConstraint {
         //TODO: No possible solution, need the false() constraint.
         if (!isValidPlatform())
             return;
-
+        IntDomainVar end = core.createIntegerConstant("", dShutdown);
         for (Node n : nodes) {
-            /* search time when every machines may have leave the node */
-            int maxend = -1;
-            for (VirtualMachine vm : core.getSourceConfiguration().getRunnings(n)) {
-                int sup = core.getAssociatedAction(vm).getConsumingSlice().end().getSup();
-                if (sup > maxend)
-                    maxend = sup;
-            }
-            IntDomainVar end = core.createIntegerConstant("", maxend);
-
-            /* every vm must leave before the previously calculated time */
+            /*
+             * every vm must leave before the shutdown (end)
+             * TODO: should be before the start of the shutdown action
+             */
             for (VirtualMachine vm : core.getSourceConfiguration().getRunnings(n))
                 core.post(core.leq(core.getAssociatedAction(vm).getConsumingSlice().end(), end));
 
             /*
              * constrain only VMs that may move on this node.
              * take an arbitrary node where the VM can be located, and compare
-             * its platform type to newPlatform
+             * its platform type to n's future platform.
              */
+            if (willChange.get(n) != null)
             for (DemandingSlice d : core.getDemandingSlices())
-                if (core.getNode(d.hoster().getInf()).getCurrentPlatform().equals(newPlatform))
+                if (core.getNode(d.hoster().getInf()).getCurrentPlatform().equals(willChange.get(n)))
                     core.post(core.geq(d.start(), core.plus(end, RetypeNodeActionModel.RETYPE_DURATION)));
         }
+
     }
 
-    /* XXX check platform? */
     @Override
     public boolean isSatisfied(Configuration cfg) {
-        for (Node n : nodes) {
-            if (!cfg.isOnline(n)) {
+        /* rapport.tex:^\\section{Formalisation} */
+        /* TODO should give constraints to choco */
+        for (VirtualMachine vm : cfg.getAllVirtualMachines()) {
+            Node n = cfg.getLocation(vm);
+            /* vm must be running on a node */
+            if (n == null && cfg.isRunning(vm))
                 return false;
-            }
+            if (!vm.getHostingPlatform().equals(n.getCurrentPlatform()))
+                return false;
         }
-        return true;
+       return true;
     }
 
     @Override
@@ -129,7 +136,8 @@ public class Platform implements PlacementConstraint {
 
     @Override
     public ManagedElementSet<VirtualMachine> getMisPlaced(Configuration cfg) {
-        return empty; //The node is offline, so it does not any VMs on it
+        /* TODO get VMs misplaced in isSatisfied? */
+        return empty;
     }
 
     @Override
@@ -168,12 +176,11 @@ public class Platform implements PlacementConstraint {
 
         Platform q = (Platform) o;
 
-        return nodes.equals(q.nodes) && newPlatform.equals(q.newPlatform);
+        return nodes.equals(q.nodes) && willChange.equals(q.willChange);
     }
 
     @Override
     public int hashCode() {
         return "platform".hashCode() * 31 + nodes.hashCode();
     }
-
 }

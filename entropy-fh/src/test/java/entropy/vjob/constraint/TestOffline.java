@@ -95,7 +95,6 @@ public class TestOffline {
         Assert.assertTrue(c.isSatisfied(cfg));
         c = new Offline(cfg.getOnlines());
         Assert.assertFalse(c.isSatisfied(cfg));
-
     }
 
     /**

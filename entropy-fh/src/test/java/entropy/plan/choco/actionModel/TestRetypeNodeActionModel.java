@@ -73,7 +73,6 @@ public class TestRetypeNodeActionModel {
                 Assert.assertEquals(nn.getCurrentPlatform(), "dest");
             }
         }
-
     }
 
     public void testActionDetectionAndCreation2() {
