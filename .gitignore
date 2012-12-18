@@ -10,3 +10,5 @@ imgs/*.pdf
 entropy-fh/target/*
 entropy-fh/.idea*
 entropy-fh/entropy.iml
+*.iws
+*.ipr
