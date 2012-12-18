@@ -43,7 +43,8 @@ public class RetypeNodeActionModel extends ManageableNodeActionModel {
 
         duration = model.createIntegerConstant("d(retype(" + n.getName() + ")", dShut+dRet);
 
-        model.post(model.leq(dShut+dRet + 1, model.getEnd()));
+        //FIXME: Why there was a +1
+        model.post(model.leq(dShut+dRet, model.getEnd()));
         this.newPlatform = newPlatform;
     }
 

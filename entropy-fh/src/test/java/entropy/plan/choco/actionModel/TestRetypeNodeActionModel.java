@@ -6,6 +6,7 @@ import choco.kernel.common.logging.Verbosity;
 import entropy.PropertiesHelper;
 import entropy.configuration.*;
 import entropy.plan.PlanException;
+import entropy.plan.TimedReconfigurationPlan;
 import entropy.plan.action.Retype;
 import entropy.plan.choco.DefaultReconfigurationProblem;
 import entropy.plan.choco.ReconfigurationProblem;
@@ -114,9 +115,11 @@ public class TestRetypeNodeActionModel {
 //        Assert.assertEquals(rt.getFinishMoment(), 8);
 //        Assert.assertEquals(a.getDuration().getVal(), 8);
 
+        TimedReconfigurationPlan p = m.extractSolution();
 
-        System.out.println(m.extractSolution());
-        for (Node n1 : m.extractSolution().getDestination().getAllNodes()) {
+        Assert.assertNotNull(p);
+        System.out.println(p);
+        for (Node n1 : p.getDestination().getAllNodes()) {
             SimpleNode n2 = (SimpleNode) n1;
             if (n2.getName().equals("N1")) {
                 Assert.assertEquals(n2.getCurrentPlatform(), "bar");

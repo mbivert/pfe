@@ -36,6 +36,7 @@ import choco.kernel.solver.variables.set.SetVar;
 import entropy.configuration.*;
 import entropy.plan.*;
 import entropy.plan.action.Action;
+import entropy.plan.action.ActionComparator;
 import entropy.plan.choco.actionModel.*;
 import entropy.plan.choco.actionModel.slice.ConsumingSlice;
 import entropy.plan.choco.actionModel.slice.DemandingSlice;
@@ -1153,11 +1154,28 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
         //TODO: check if solution is found
         //Configuration dst = extractConfiguration();
         DefaultTimedReconfigurationPlan plan = new DefaultTimedReconfigurationPlan(source);
+
+        List<Action> allActions = new ArrayList<Action>();
+        ActionComparator cmp = new ActionComparator(ActionComparator.Type.start);
+        for (NodeActionModel action : getNodeMachineActions()) {
+            allActions.addAll(action.getDefinedAction(this));
+        }
+        for (VirtualMachineActionModel action : getVirtualMachineActions()) {
+            allActions.addAll(action.getDefinedAction(this));
+        }
+
+        Collections.sort(allActions, cmp);
+        for (Action a: allActions) {
+            if (!plan.add(a)) {
+                Plan.logger.warn("Action " + a + " is not added into the plan");
+            }
+        }
+        /*
         for (NodeActionModel action : getNodeMachineActions()) {
             //TODO: quite dirty approach
             if (action instanceof BootableNodeActionModel2
                     || action instanceof BootNodeActionModel
-                    /*|| action instanceof RetypeNodeActionModel*/) {
+                    //|| action instanceof RetypeNodeActionModel) {
                 for (Action a : action.getDefinedAction(this)) {
                     System.err.println(a);
                     if (!plan.add(a)) {
@@ -1189,7 +1207,7 @@ public class DefaultReconfigurationProblem extends CPSolver implements Reconfigu
                     }
                 }
             }
-        }
+        }      */
         if (plan.getDuration() != end.getVal()) {
             Plan.logger.error("Theoretical duration (" + end.getVal() + ") and plan duration (" + plan.getDuration() + ") mismatch");
             return null;
