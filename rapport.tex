@@ -84,7 +84,7 @@
 La fonction $T$ associe à une VM ou un nœud son type; la fonction $P$
 associe à une VM ou une slice un nœud.
 
-Un nœud est doté d'une nouvelle dimension de type.Celle-ci
+Un nœud est doté d'une nouvelle dimension de type. Celle-ci
 est booléenne : soit le type change, auquel cas, la valeur est de $1$,
 sinon, elle vaut $0$. Dans les graphes suivants, elle est représentée
 à part pour des questions de lisibilité.
@@ -156,6 +156,23 @@ données au solveur:
 	(\forall d \in \mathcal D), P(d) = n \Rightarrow d^\mathrm{st} \geq D^\mathrm{ed}
 \]
 \end{enumerate}
+
+\subsection{Implémentation}
+On ajoute une nouvelle contrainte de placement \textit{Platform}. Son
+constructeur prends en argument une \textit{HashMap} associant les
+nœuds devant changer de type à leur nouvelle plateforme.
+
+On contraint alors les VMs présentent sur le nœud à se déplacer
+avant le temps de début de redémarage du serveur. Pour cela, on
+récupère les c-slices des actions associées aux VMs, et on ajoute
+une contrainte sur le temps de fin de ces slices.
+
+Enfin, si le nœud s'apprête à changer de type, on regarde toutes
+les d-slices entrant en jeu dans la reconfiguration. On sélectionne
+ensuite les d-slices dont les VMs ont le même type que le nœud à la fin
+du processus. Finalement, on contraint ces slices à ne démarrer
+qu'après la fin du processus de retypage, c'est-à-dire une fois que
+le nœud a bien redémarré et changé d'hyperviseur.
 
 % \subsection{Sans changement de type}
 % On observe maintenant ce qu'il se passe si le type reste constant, de
