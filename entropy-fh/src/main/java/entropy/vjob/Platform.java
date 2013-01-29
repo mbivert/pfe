@@ -174,10 +174,17 @@ public class Platform implements PlacementConstraint {
         return this.nodes;
     }
 
+    /*
+     * check when called; here assumed before anything only
+     * return all the vm on nodes which will change their platform
+     */
     @Override
     public ManagedElementSet<VirtualMachine> getMisPlaced(Configuration cfg) {
-        /* TODO get VMs misplaced in isSatisfied? */
-        return empty;
+        ManagedElementSet<VirtualMachine> set = new SimpleManagedElementSet<VirtualMachine>();
+        for (Node n : willChange.keySet())
+            for(VirtualMachine vm : cfg.getRunnings(n))
+                set.add(vm);
+        return set;
     }
 
     @Override
