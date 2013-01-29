@@ -24,12 +24,14 @@ import entropy.configuration.*;
 import entropy.plan.choco.ReconfigurationProblem;
 import entropy.plan.choco.actionModel.RetypeNodeActionModel;
 import entropy.plan.choco.actionModel.slice.DemandingSlice;
+import entropy.plan.durationEvaluator.DurationEvaluationException;
 import entropy.vjob.builder.protobuf.PBVJob;
 import entropy.vjob.builder.protobuf.ProtobufVJobSerializer;
 import entropy.vjob.builder.xml.XmlVJobSerializer;
 import java.util.HashMap;
 
 /* XXX .ordinal to get integer */
+/* look for Vjob/Node for enumeration */
 enum AllPlatform {
     FOO("foo"),
     BAR("bar"),
@@ -58,9 +60,9 @@ public class Platform implements PlacementConstraint {
     private ManagedElementSet<Node> nodes;
     private HashMap<Node, String> willChange;
     /* start of the shutdown operation */
-    private int sShutdown;
+   // private int sShutdown;
     /* duration of the shutdown op */
-    private int dShutdown;
+ //   private int dShutdown;
 
     private static final ManagedElementSet<VirtualMachine> empty = new SimpleManagedElementSet<VirtualMachine>();
 
@@ -69,15 +71,16 @@ public class Platform implements PlacementConstraint {
      *
      * @param nodes the nodes to put online
      */
-    public Platform(ManagedElementSet<Node> nodes, HashMap<Node,String> willChange, int sShutdown, int dShutdown) {
+    public Platform(ManagedElementSet<Node> nodes, HashMap<Node,String> willChange/*, int sShutdown, int dShutdown*/) {
         this.nodes = nodes;
-        this.sShutdown = sShutdown;
-        this.dShutdown = dShutdown;
+    //    this.sShutdown = sShutdown;
+      //  this.dShutdown = dShutdown;
         this.willChange = willChange;
     }
 
     public Platform(ManagedElementSet<Node> nodes) {
-        this(nodes, new HashMap<Node, String>(), 0, 1);
+      //  this(nodes, new HashMap<Node, String>(), 0, 1);
+       this(nodes, new HashMap<Node, String>());
     }
 
     /**
@@ -97,11 +100,19 @@ public class Platform implements PlacementConstraint {
         //TODO: No possible solution, need the false() constraint.
         if (!isValidPlatform())
             return;
-        IntDomainVar start = core.createIntegerConstant("", sShutdown);
-        IntDomainVar end = core.createIntegerConstant("", sShutdown+dShutdown);
 
         for (Node n : nodes) {
             AllPlatform np = AllPlatform.getPlatform(n.getCurrentPlatform());
+            IntDomainVar start, end;
+            try {
+               int start_shutdown =  core.getDurationEvaluator().evaluateShutdown(n);
+               start = core.createIntegerConstant("", start_shutdown);
+               end = core.createIntegerConstant("", start_shutdown+core.getDurationEvaluator().evaluateStartup(n));
+            }
+            catch(DurationEvaluationException e) {
+                System.err.println(e);
+                return;
+            }
             /* unknown platform TODO false() constraint? */
             if (np == null)
                 return;
@@ -118,6 +129,9 @@ public class Platform implements PlacementConstraint {
              *
              * constraints vm and node to have the same platform id
              *
+             * if (vm will be on new node n) then dt <= blablabla
+             * look in continuous spread for example of re-ified constraint.
+             * http://choco.svn.sourceforge.net/viewvc/choco/tags/choco-2.1.5/choco-cp/src/main/java/choco/cp/solver/constraints/reified/
              */
             if (willChange.get(n) != null)
             for (DemandingSlice d : core.getDemandingSlices()) {
