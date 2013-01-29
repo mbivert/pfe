@@ -158,6 +158,9 @@ données au solveur:
 \end{enumerate}
 
 \subsection{Implémentation}
+
+% Interface: Platform({ nœud_i -> plateforme, nœud_j -> plateforme, …})
+
 On ajoute une nouvelle contrainte de placement \textit{Platform}. Son
 constructeur prends en argument une \textit{HashMap} associant les
 nœuds devant changer de type à leur nouvelle plateforme.
@@ -195,6 +198,29 @@ un nœud de même type, ie.:
 \]
 
 Cette contrainte doit être implémentée dans BtrPlace via Choco.
+
+\section{Généralisation}
+Pour chaque type de plateforme, un dimension est ajoutée à chaque
+nœud.
+
+% bool | int représentant nombre de VMs possibles de ce type
+% (utile pour les licences limitées)
+
+Le placement est satisfait ssi au plus une seule de ces dimensions est
+non nulle:
+\[
+	(\exists ! x \in v_i), x \neq 0
+	\Leftrightarrow OccurenceMin(0, v_i) == len(v_i)-1
+\]
+
+% occurencemin/max deprecated?
+% https://www.iam.unibe.ch/scg/svn_repos/Students/haense/CaseStudies/choco/choco-kernel/src/main/java/choco/DeprecatedChoco.java
+
+La contrainte est donc satisfaite pour un nœud $n$ dans deux cas:
+\begin{enumerate}
+	\item $v_i$ ne contient que des $0$ : aucun hyperviseur n'est actif;
+	\item $v_i$ a une composante non-nulle : un unique hyperviseur tourne sur $n$.
+\end{enumerate}
 
 \newpage
 \selectlanguage{francais}
