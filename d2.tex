@@ -1,0 +1,258 @@
+\documentclass[a4paper]{article}
+
+\usepackage[francais,english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[]{fullpage}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{subfigure}
+
+\makeatletter
+\def\thickhrulefill{\leavevmode \leaders \hrule height 1pt\hfill \kern \z@}
+\def\maketitle{%
+  \null
+  \thispagestyle{empty}%
+  \vskip 1cm
+  \begin{flushright}
+        \normalfont\Large\@author
+  \end{flushright}
+  \vfil
+  \hrule height 2pt
+  \par
+  \begin{center}
+        \huge \strut \@title \par
+  \end{center}
+  \hrule height 2pt
+  \par
+  \vfil
+  \vfil
+  \null
+\begin{center}
+\Huge{Placement constraints for a better QoS in clouds}
+\end{center}
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.45]{imgs/cloud.png}
+\end{figure}
+\vfil
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.5]{imgs/polytech.png}
+\end{figure}
+\vfil
+\begin{description}
+	\item[Entreprise] Université de Nice-Sophia Antipolis
+	\item[Lieu] Sophia-Antipolis, France
+	\item[Responsable] Fabien Hermenier, équipe OASIS,
+		\href{mailto:fabien.hermenier@unice.fr}{fabien.hermenier@unice.fr}
+\end{description}
+\cleardoublepage
+}
+\makeatother
+\author{Mathieu Bivert, CSSR, \href{mailto:bivert@essi.fr}{bivert@essi.fr}}
+\title{PFE : Rendu intérmédiaire $D_2$ (draft)}
+
+\begin{document}
+\maketitle
+
+\selectlanguage{francais}
+	\begin{abstract}
+		Ce document présente une formalisation du typage des nœuds
+		et des machines virtuelles dans le cadre du logiciel Entropy.
+		Une implémentation y est décrite succintement.
+	\end{abstract}
+
+\selectlanguage{english}
+	\begin{abstract}
+		This document describes a formalisation of the nodes and virtual
+		machines typing within the framework of Entropy. A implementation
+		is also succintly described.
+	\end{abstract}
+
+\selectlanguage{francais}
+
+\tableofcontents
+\newpage
+
+\section{Vocabulaire et notations}
+On commence par introduire le vocabulaires et les notations utilisées
+dans le cadre de ce document:
+
+\begin{description}
+	\item[Type] entier $t \in \mathcal T$ associé à chaque système de virtualisation,
+		par exemple, KVM$=0$, VMWare$=1$, \ldots
+	\item[Nœud] serveur physique, noté $n \in \mathcal N$,doté d'un
+		type courant $T(n)$ et d'un ensemble de types possibles
+		$\mathcal{T}_n$;
+	\item[VM] machine virtuelle, notée $v \in \mathcal V$, à laquelle
+		est associée un type fixe $T(v) \in \mathcal T$ et un emplacement courant $P(v) \in \mathcal N$;
+	\item[Déploiement] opération de redémarrage de nœud, éventuellement
+		accompagnée d'un changement de type pour le nœud.
+	\item[Reconfiguration] opération durant laquelle BtrPlace change le
+		placement des VMs sur les nœuds, en fonction des contraintes
+		établies par l'utilisateur;
+	\item[Slices] la modélisation des actions de reconfiguration~\cite{herm2012}
+		est réalisée à l'aide de \textit{slices}, qui correspondent à
+		une durée finie pendant un processus de reconfiguration, durant laquelle
+		des ressources sont utilisées. On distingue deux types de slices:
+	\begin{description}
+		\item[consuming slice], $c \in \mathcal C$, où les ressources sont
+			utilisées au début de la reconfiguration;
+		\item[demanding slice], $d \in \mathcal D$, où les ressources sont
+		utilisées à la fin de la reconfiguration;
+	\end{description}
+\end{description}
+
+La fonction $T$ associe à une VM ou un nœud son type; la fonction $P$
+associe à une VM ou une slice un nœud.
+
+Un nœud est doté d'une nouvelle dimension de type. Celle-ci
+est booléenne : soit le type change, auquel cas, la valeur est de $1$,
+sinon, elle vaut $0$. Dans les graphes suivants, elle est représentée
+à part pour des questions de lisibilité.
+
+\section{Configuration d'exemple}
+Dans un premier temps, on cherche à obtenir une configuration minimaliste,
+mettant en œuvre suffisamment d'éléments pour représenter le problème:
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.45]{imgs/config.eps}
+	\caption{\label{config} Exemple de configuration mettant en œuvre un
+		changement de type; $v_1$ est mise hors-ligne, $v_2$ est allumée}
+\end{figure}
+
+Sur la figure \ref{config}, $v_1$ et $v_2$ sont deux machines
+virtuelles de types différents, par exemple Xen et VMWare.
+Pour simplifier le problème, on ne considère que des actions
+de démarrage et d'éteignage pour les VMs. En effet, considérer
+d'autres types d'actions dans cet exemple ne change pas le
+problème, la modélisation par des slices permettant de s'abstraire
+des actions précises sur VMs.
+
+L'opération de déploiement sur le nœud $n_1$ se résume à:
+\begin{enumerate}
+	\item mettre hors-ligne $v_1$;
+	\item éteindre $n_1$;
+	\item allumer $n_1$ en changeant son type, c'est-à-dire en changeant
+		son hyperviseur.
+	\item démarrer $v_2$;
+\end{enumerate}
+Le temps $T_d$ pris par cette opération est spécifié par l'admninistrateur
+du datacenter dans la configuration de BtrPlace.
+
+\section{Modélisation}
+Dans ce  paragraphe, on cherche un modèle correspondant à l'exemple du
+paragraphe précèdent. On commence par décrire le cas général, puis on
+travaille par incrément depuis un cas particulier pour arriver à une
+implémentation « complète ».
+
+\subsection{Cas général}
+Pour chaque type de plateforme, un dimension est ajoutée à chaque
+nœud.
+
+Pour le cas présent, la dimension $d$ peut très bien être de type booléene:
+si le nœud supporte le type, $d$ est vraie, sinon $d$ est fausse.
+Cependant, les licences d'utilisations des hyperviseurs spécifient
+parfois un nombre limités de machines virtuelles pouvant tourner. Afin
+de prendre en compte ce cas, il est intéressant d'utiliser une dimension
+entière, représentant le nombre de machines virtuelles de type $t$
+autorisées à fonctionner sur le nœud.
+
+Le placement est satisfait ssi au plus une seule de ces dimensions est
+non nulle:
+\[
+	(\exists ! x \in v_i), x \neq 0
+	\Leftrightarrow OccurenceMin(0, v_i) == len(v_i)-1
+\]
+
+\begin{verbatim}
+XXX occurencemin/max deprecated?
+https://www.iam.unibe.ch/scg/svn_repos/Students/haense/CaseStudies/choco/choco-kernel/src/main/java/choco/DeprecatedChoco.java
+\end{verbatim}
+
+La contrainte est donc satisfaite pour un nœud $n$ dans deux cas:
+\begin{enumerate}
+	\item $v_i$ ne contient que des $0$ : aucun hyperviseur n'est actif;
+	\item $v_i$ a une composante non-nulle : un unique hyperviseur tourne sur $n$.
+\end{enumerate}
+
+
+\subsection{Cas simple : le nouveau type d'une plateforme est connu}
+Lorsque le nouveau type est une propriété du modèle qui n'a pas à être
+déterminée par le solveur, le problème peut être simplifié. L'utilisation
+d'une slice pour la dimension de temps devient inutile; on peut se contenter
+de deux variables indiquant les temps de début et de fin de l'opération de
+déploiement, respectivement notés $D^\mathrm{st}$ et $D^\mathrm{ed}$.
+
+Le type du nœud étant modifié, les VMs présentes au début de la reconfiguration
+doivent nécessairement être déplacées ou migrées, suivant les autres
+contraintes. Les nouvelles VMs peuvent alors être placées à l'aide de
+la contrainte \textit{fence}, d'une façon similaire à ce qui se passe dans
+\textit{entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/StaticPlatform.java:40}. \textit{Fence} contraint un ensemble de VMs à tourner sur un
+ensemble de nœuds; donc dans le cas présent, limite le placement des VMs
+au nœuds ayant le même type.
+
+\subsubsection{Formalisation}
+Pour satisfaire le placement sur un nœud $n$, deux contraintes supplémentaires sont
+données au solveur:
+
+\begin{enumerate}
+	\item Les anciennes VMs partent avant le début de l'opération de
+		redéploiement, c'est-à-dire,
+\[
+	(\forall c \in \mathcal C), P(c) = n \Rightarrow c^\mathrm{ed} \leq D^\mathrm{st}
+\]
+	\item Les nouvelles VMs arrivent une fois le redéploiement terminé,
+		c'est-à-dire:
+\[
+	(\forall d \in \mathcal D), P(d) = n \Rightarrow d^\mathrm{st} \geq D^\mathrm{ed}
+\]
+\end{enumerate}
+Le placement est satisfait ssi chaque VM est bien placée sur
+un nœud de même type, ie.:
+\[
+	(\forall v \in \mathcal V), (\exists n \in \mathcal N), P(v) = n
+		\Rightarrow T(n) = T(v)	
+\]
+
+Cette contrainte doit être implémentée dans BtrPlace via Choco.
+
+\subsubsection{Implémentation}
+
+\begin{verbatim}
+XXX Interface: Platform({ nœud_i -> plateforme, nœud_j -> plateforme, …})
+\end{verbatim}
+
+On ajoute une nouvelle contrainte de placement \textit{Platform}. Son
+constructeur prends en argument une \textit{HashMap} associant les
+nœuds devant changer de type à leur nouvelle plateforme.
+
+On contraint alors les VMs présentent sur le nœud à se déplacer
+avant le temps de début de redémarage du serveur. Pour cela, on
+récupère les c-slices des actions associées aux VMs, et on ajoute
+une contrainte sur le temps de fin de ces slices.
+
+Enfin, si le nœud s'apprête à changer de type, on regarde toutes
+les d-slices entrant en jeu dans la reconfiguration. On sélectionne
+ensuite les d-slices dont les VMs ont le même type que le nœud à la fin
+du processus. Finalement, on contraint ces slices à ne démarrer
+qu'après la fin du processus de retypage, c'est-à-dire une fois que
+le nœud a bien redémarré et changé d'hyperviseur.
+
+Le code implémentant la contrainte est disponible via le fichier
+\textit{entropy-src/main/java/entropy/vjob/Platform.java}. Cette
+classe est testée en suivant des use-cases définis par Fabien Hermenier dans
+\textit{entropy-fh/src/test/java/entropy/vjob/constraint/TestPlatform.java}
+
+\subsection{Implémentation du cas général}
+TODO
+\section{Conclusion}
+TODO
+
+\newpage
+\selectlanguage{francais}
+\bibliographystyle{alpha}
+\bibliography{docs}
+
+\end{document}
