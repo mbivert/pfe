@@ -1,27 +1,30 @@
 package entropy.vjob;
 
+import choco.DeprecatedChoco;
+import choco.cp.solver.constraints.global.Occurrence;
+import choco.kernel.model.variables.integer.IntegerVariable;
+import choco.kernel.solver.variables.integer.IntDomainVar;
 import entropy.configuration.*;
 import entropy.plan.choco.ReconfigurationProblem;
 import entropy.vjob.builder.protobuf.PBVJob;
 import entropy.vjob.builder.protobuf.ProtobufVJobSerializer;
 import entropy.vjob.builder.xml.XmlVJobSerializer;
 
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mb
- * Date: 2/5/13
- * Time: 11:53 AM
- * To change this template use File | Settings | File Templates.
- */
 public class TypedPlatform implements PlacementConstraint {
     private ManagedElementSet<TypedNode> nodes;
     private static final ManagedElementSet<VirtualMachine> empty = new SimpleManagedElementSet<VirtualMachine>();
+    private static Set<String> existingPlatforms = new HashSet<String>();
 
 
     public TypedPlatform(ManagedElementSet<TypedNode> nodes) {
         this.nodes = nodes;
+
+        /* create list of available platforms */
+        for (Node n : nodes)
+            existingPlatforms.addAll(n.getAvailablePlatforms());
     }
 
     @Override
@@ -31,7 +34,12 @@ public class TypedPlatform implements PlacementConstraint {
 
     @Override
     public void inject(ReconfigurationProblem core) {
-
+        // can't find choco.Problem nor choco.global.Occurence for
+        // http://choco.sourceforge.net/api/choco/Problem.html#createOccurrence%28choco.integer.IntVar[],%20int,%20boolean,%20boolean%29
+        for (Node n : nodes) {
+            IntDomainVar len = core.createIntegerConstant("", n.getAvailablePlatforms().size()-1);
+            //DeprecatedChoco.occurenceMin(0, len, n.getAvailablePlatforms().toArray());
+        }
     }
 
     @Override

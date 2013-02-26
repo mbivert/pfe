@@ -27,6 +27,10 @@ public class TypedNode extends SimpleNode {
         this.types = types;
     }
 
+    public Map<String, Integer> getTypes() {
+        return types;
+    }
+
     @Override
     public Node clone() {
         TypedNode clone = new TypedNode(getName(), getNbOfCPUs(), getCPUCapacity(), getMemoryCapacity());
