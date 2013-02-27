@@ -16,7 +16,7 @@ import java.util.Set;
 public class TypedPlatform implements PlacementConstraint {
     private ManagedElementSet<TypedNode> nodes;
     private static final ManagedElementSet<VirtualMachine> empty = new SimpleManagedElementSet<VirtualMachine>();
-    private static Set<String> existingPlatforms = new HashSet<String>();
+    private Set<String> existingPlatforms = new HashSet<String>();
 
 
     public TypedPlatform(ManagedElementSet<TypedNode> nodes) {

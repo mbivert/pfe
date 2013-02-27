@@ -19,8 +19,10 @@
 
 package entropy.vjob;
 
+import choco.cp.solver.constraints.reified.ReifiedFactory;
 import choco.kernel.solver.variables.integer.IntDomainVar;
 import entropy.configuration.*;
+import entropy.plan.choco.Chocos;
 import entropy.plan.choco.ReconfigurationProblem;
 import entropy.plan.choco.actionModel.RetypeNodeActionModel;
 import entropy.plan.choco.actionModel.slice.DemandingSlice;
@@ -28,41 +30,14 @@ import entropy.plan.durationEvaluator.DurationEvaluationException;
 import entropy.vjob.builder.protobuf.PBVJob;
 import entropy.vjob.builder.protobuf.ProtobufVJobSerializer;
 import entropy.vjob.builder.xml.XmlVJobSerializer;
-import java.util.HashMap;
 
-/* XXX .ordinal to get integer */
-/* look for Vjob/Node for enumeration */
-enum AllPlatform {
-    FOO("foo"),
-    BAR("bar"),
-    BAZ("baz"),
-    ANY("any");
-    private String name;
-
-    AllPlatform(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public static AllPlatform getPlatform(String s) {
-        for (AllPlatform p : AllPlatform.values())
-            if (p.getName().equals(s))
-                return p;
-        return null;
-    }
-}
-
+import java.util.*;
 
 public class Platform implements PlacementConstraint {
     private ManagedElementSet<Node> nodes;
     private HashMap<Node, String> willChange;
-    /* start of the shutdown operation */
-   // private int sShutdown;
-    /* duration of the shutdown op */
- //   private int dShutdown;
+    // somehow duplicate in TypedPlatform (List.indexOf(s) will allow String<->int correspondence)
+    private static List<String> existingPlatforms = null;
 
     private static final ManagedElementSet<VirtualMachine> empty = new SimpleManagedElementSet<VirtualMachine>();
 
@@ -71,15 +46,21 @@ public class Platform implements PlacementConstraint {
      *
      * @param nodes the nodes to put online
      */
-    public Platform(ManagedElementSet<Node> nodes, HashMap<Node,String> willChange/*, int sShutdown, int dShutdown*/) {
+    public Platform(ManagedElementSet<Node> nodes, HashMap<Node,String> willChange) {
         this.nodes = nodes;
-    //    this.sShutdown = sShutdown;
-      //  this.dShutdown = dShutdown;
         this.willChange = willChange;
+
+        if (existingPlatforms == null) {
+            /* use set to avoid duplicates */
+            Set<String> tmp = new HashSet<String>();
+            for (Node n : nodes)
+                tmp.addAll(n.getAvailablePlatforms());
+            existingPlatforms = new ArrayList<String>();
+            existingPlatforms.addAll(tmp);
+        }
     }
 
     public Platform(ManagedElementSet<Node> nodes) {
-      //  this(nodes, new HashMap<Node, String>(), 0, 1);
        this(nodes, new HashMap<Node, String>());
     }
 
@@ -102,7 +83,9 @@ public class Platform implements PlacementConstraint {
             return;
 
         for (Node n : nodes) {
-            AllPlatform np = AllPlatform.getPlatform(n.getCurrentPlatform());
+            /* unknown platform TODO false() constraint? (btw, should _never_ happen) */
+            if (existingPlatforms.contains(n.getCurrentPlatform()))
+                return;
             IntDomainVar start, end;
             try {
                int start_shutdown =  core.getDurationEvaluator().evaluateShutdown(n);
@@ -113,9 +96,7 @@ public class Platform implements PlacementConstraint {
                 System.err.println(e);
                 return;
             }
-            /* unknown platform TODO false() constraint? */
-            if (np == null)
-                return;
+
             /*
              * every vm must leave before the shutdown (end)
              */
@@ -126,25 +107,19 @@ public class Platform implements PlacementConstraint {
              * constrain only VMs that may move on this node.
              * take an arbitrary node where the VM can be located, and compare
              * its platform type to n's future platform.
-             *
-             * constraints vm and node to have the same platform id
-             *
-             * if (vm will be on new node n) then dt <= blablabla
-             * look in continuous spread for example of re-ified constraint.
-             * http://choco.svn.sourceforge.net/viewvc/choco/tags/choco-2.1.5/choco-cp/src/main/java/choco/cp/solver/constraints/reified/
              */
             if (willChange.get(n) != null)
             for (DemandingSlice d : core.getDemandingSlices()) {
-                String p = core.getNode(d.hoster().getInf()).getCurrentPlatform();
-                if (p.equals(willChange.get(n))) {
-                    core.post(core.geq(d.start(), core.plus(end, RetypeNodeActionModel.RETYPE_DURATION)));
+                // platform associated to slice
+                IntDomainVar sp = core.createIntegerConstant("slicePlatform",
+                        existingPlatforms.indexOf(core.getNode(d.hoster().getInf()).getCurrentPlatform()));
+                // and the one associated to the node
+                IntDomainVar np = core.createIntegerConstant("nodePlatform",
+                        existingPlatforms.indexOf(willChange.get(n)));
 
-                    AllPlatform vp = AllPlatform.getPlatform(p);
-                    /* unknown platform TODO false() constraint? */
-                    if (vp == null)
-                        return;
-                    core.post(core.eq(core.createIntegerConstant("", vp.ordinal()), np.ordinal()));
-                }
+                IntDomainVar eq = core.createBooleanVar("eq");
+                core.post(ReifiedFactory.builder(eq, core.eq(sp, np), core));
+                Chocos.postImplies(core, eq, core.geq(d.start(), core.plus(end, RetypeNodeActionModel.RETYPE_DURATION)));
             }
         }
 
