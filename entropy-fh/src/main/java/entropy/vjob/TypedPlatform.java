@@ -9,6 +9,7 @@ import entropy.plan.choco.ReconfigurationProblem;
 import entropy.vjob.builder.protobuf.PBVJob;
 import entropy.vjob.builder.protobuf.ProtobufVJobSerializer;
 import entropy.vjob.builder.xml.XmlVJobSerializer;
+import choco.cp.solver.constraints.global.Occurrence;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,17 +43,19 @@ public class TypedPlatform implements PlacementConstraint {
     public void inject(ReconfigurationProblem core) {
         // can't find choco.Problem nor choco.global.Occurence for
         // http://choco.sourceforge.net/api/choco/Problem.html#createOccurrence%28choco.integer.IntVar[],%20int,%20boolean,%20boolean%29
+
         for (Node n : nodes) {
-            /* -1 because at least one must be non-null */
+            // -1 because at least one must be non-null
             int l = n.getAvailablePlatforms().size()-1;
-            IntegerVariable len = new IntegerVariable("", l,l);
-            IntegerVariable[] platforms = new IntegerVariable[l+1];
+            IntDomainVar[] platforms = new IntDomainVar[l+1];
             ArrayList<String> nodePlatforms = new ArrayList<String>(n.getAvailablePlatforms());
-            for (int i = 0; i < l+1; i++) {
-                int p = existingPlatforms.indexOf(nodePlatforms.get(i));
-                platforms[i] = new IntegerVariable("", p, p);
+            for (int i = 0; i < l; i++) {
+                platforms[i] = core.createIntegerConstant("", existingPlatforms.indexOf(nodePlatforms.get(i)));
             }
-            DeprecatedChoco.occurenceMin(0, len, platforms);
+            platforms[l] = core.createIntegerConstant("", l);
+            // XXX what's environment? (last param); not mentionned in doc
+            core.post(new Occurrence(platforms, 0, true, true, null));
+            //DeprecatedChoco.occurenceMin(0, len, platforms);
         }
     }
 
