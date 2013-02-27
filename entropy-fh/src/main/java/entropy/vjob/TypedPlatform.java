@@ -10,21 +10,27 @@ import entropy.vjob.builder.protobuf.PBVJob;
 import entropy.vjob.builder.protobuf.ProtobufVJobSerializer;
 import entropy.vjob.builder.xml.XmlVJobSerializer;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class TypedPlatform implements PlacementConstraint {
     private ManagedElementSet<TypedNode> nodes;
     private static final ManagedElementSet<VirtualMachine> empty = new SimpleManagedElementSet<VirtualMachine>();
-    private Set<String> existingPlatforms = new HashSet<String>();
-
+    private static List<String> existingPlatforms = null;
 
     public TypedPlatform(ManagedElementSet<TypedNode> nodes) {
         this.nodes = nodes;
 
-        /* create list of available platforms */
-        for (Node n : nodes)
-            existingPlatforms.addAll(n.getAvailablePlatforms());
+        if (existingPlatforms == null) {
+            /* use set to avoid duplicates */
+            Set<String> tmp = new HashSet<String>();
+            for (Node n : nodes)
+                tmp.addAll(n.getAvailablePlatforms());
+            existingPlatforms = new ArrayList<String>();
+            existingPlatforms.addAll(tmp);
+        }
     }
 
     @Override
@@ -37,8 +43,16 @@ public class TypedPlatform implements PlacementConstraint {
         // can't find choco.Problem nor choco.global.Occurence for
         // http://choco.sourceforge.net/api/choco/Problem.html#createOccurrence%28choco.integer.IntVar[],%20int,%20boolean,%20boolean%29
         for (Node n : nodes) {
-            IntDomainVar len = core.createIntegerConstant("", n.getAvailablePlatforms().size()-1);
-            //DeprecatedChoco.occurenceMin(0, len, n.getAvailablePlatforms().toArray());
+            /* -1 because at least one must be non-null */
+            int l = n.getAvailablePlatforms().size()-1;
+            IntegerVariable len = new IntegerVariable("", l,l);
+            IntegerVariable[] platforms = new IntegerVariable[l+1];
+            ArrayList<String> nodePlatforms = new ArrayList<String>(n.getAvailablePlatforms());
+            for (int i = 0; i < l+1; i++) {
+                int p = existingPlatforms.indexOf(nodePlatforms.get(i));
+                platforms[i] = new IntegerVariable("", p, p);
+            }
+            DeprecatedChoco.occurenceMin(0, len, platforms);
         }
     }
 
