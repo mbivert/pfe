@@ -299,7 +299,27 @@ occval in their domain is constrained
 \section{Validation}
 Les implémentations précèdentes sont validées pas des tests unitaires mettant
 en œuvre des uses-cases significatifs vus avec l'encadrant.
+\subsection{Cas particulier (contrainte \textit{Platform})}
+\subsubsection{Sans changement de type}
+Soient un nœud $n_1$ supportant un unique hyperviseur $h_1$, et deux
+machines virtuelles $v_1$ et $v_2$, de types respectifs $h_1$ et $h_2$.
+La consommation en ressource de $v_1$ comme de $v_2$ est inférieure aux
+possibilités offertes par $n_1$.
 
+Il faut alors s'assurer que placer:
+\begin{itemize}
+	\item $v_1$ sur $n_1$ satisfait bien la contrainte \textit{Platform};
+	\item $v_2$ sur $n_1$ ne satisfait pas la contrainte.
+\end{itemize}
+\subsubsection{Type variable}
+Soient deux nœuds $n_1$ et $n_2$ supportant respectivement les hyperviseurs
+$h_1, h_2$ et $h_1$. Soient deux machines virtuelles $v_1$ et $v_2$ de
+types respectifs $h_1$ et $h_2$. Au début du processus de reconfiguration,
+les deux nœuds tournent sous $h_1$; $v_1$ tourne sur $n_1$ et $v_2$ est
+éteinte. À la fin, $n_1$ aura changé son type d'hyperviseur à $h_2$, et
+$v_2$ doit être allumée. (XXX implémentation incomplète).
+
+\subsection{Cas général}
 \newpage
 \selectlanguage{francais}
 \bibliographystyle{alpha}
