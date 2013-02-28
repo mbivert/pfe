@@ -104,7 +104,7 @@ Plus formellement:
 	\item[Slices] la modélisation des actions de reconfiguration~\cite{herm2012}
 		est réalisée à l'aide de \textit{slices}, qui correspondent à
 		une durée finie pendant un processus de reconfiguration, durant laquelle
-		des ressources sont utilisées. On distingue deux types de slices:
+		des ressources sont utilisées. Il existe deux types de slices:
 	\begin{description}
 		\item[consuming slice], $c \in \mathcal C$, où les ressources sont
 			utilisées au début de la reconfiguration;
@@ -122,7 +122,7 @@ sinon, elle vaut $0$. Dans les graphes suivants, elle est représentée
 à part pour des questions de lisibilité.
 
 \subsection{Configuration d'exemple}
-Dans un premier temps, on cherche à obtenir une configuration minimaliste,
+Dans un premier temps, nous cherchons à obtenir une configuration minimaliste,
 mettant en œuvre suffisamment d'éléments pour représenter le problème:
 \begin{figure}[!ht]
 	\centering
@@ -133,14 +133,15 @@ mettant en œuvre suffisamment d'éléments pour représenter le problème:
 
 Sur la figure \ref{config}, $v_1$ et $v_2$ sont deux machines
 virtuelles de types différents, par exemple Xen et VMWare.
-Pour simplifier le problème, on ne considère que des actions
-de démarrage et d'éteignage pour les VMs. En effet, considérer
+Pour simplifier le problème, seules les actions de démarrage et d'éteignage
+pour les VMs sont prises en compte. En effet, considérer
 d'autres types d'actions dans cet exemple ne change pas le
 problème, la modélisation par des slices permettant de s'abstraire
 des actions précises sur VMs.
 
 L'opération de déploiement sur le nœud $n_1$ se résume à:
 \begin{enumerate}
+	\item s'assurer que toutes les VMs présentent sur $v_1$ sont migrées;
 	\item mettre hors-ligne $v_1$;
 	\item éteindre $n_1$;
 	\item allumer $n_1$ en changeant son type, c'est-à-dire en changeant
@@ -150,15 +151,16 @@ L'opération de déploiement sur le nœud $n_1$ se résume à:
 Le temps $T_d$ pris par cette opération est spécifié par l'admninistrateur
 du datacenter dans la configuration de BtrPlace.
 
-Dans les paragraphes qui suivent, on cherche un modèle correspondant à l'exemple du
-paragraphe précèdent. On commence par décrire le cas général, puis on
-travaille par incrément depuis un cas particulier pour arriver à une
+Dans les paragraphes qui suivent, nous cherchons un modèle correspondant
+à l'exemple du paragraphe précèdent. Nous commencons par décrire cas général,
+puis nous travaillons par incrément depuis un cas particulier pour arriver à une
 implémentation « complète ».
 
 \section{Modélisation abstraite du cas général}
-Pour chaque type de plateforme, un dimension est ajoutée à chaque
-nœud. On considère que ces dimensions sont stockés dans un vecteur
-$v \in \mathbb{N}^n$. La façon dont on construit $v$ et la justification
+Une variable est associée à chaque type de plateforme.
+Pour chaque type de plateforme, une dimension est ajoutée à chaque
+nœud. Ces variales sont stockées dans un vecteur
+$v \in \mathbb{N}^n$. La façon dont $v$ est construit et la justification
 de l'ensemble de définition des dimensions ($\mathbb{N}$) sont données
 dans la section suivante.
 
@@ -174,16 +176,13 @@ La contrainte est donc satisfaite pour un nœud $n$ dans deux cas:
 	\item $v_i$ a une composante non-nulle : un unique hyperviseur tourne sur $n$.
 \end{enumerate}
 
-\begin{verbatim}
-XXX occurencemin/max deprecated?
-https://www.iam.unibe.ch/scg/svn_repos/Students/haense/CaseStudies/choco/choco-kernel/src/main/java/choco/DeprecatedChoco.java
-\end{verbatim}
-
 \section{Modélisation pour BtrPlace}
 \subsection{Cas général}
-Pour construire les vecteurs $v_i$, on parcourt les nœuds utilisés dans le
-processus de reconfiguration pour créer table recensant les différents
-types d'hyperviseurs.
+Pour construire les vecteurs $v_i$, les nœuds utilisés dans le
+processus de reconfiguration sont parcourus pour créer une table recensant les
+différents types d'hyperviseurs. L'utilisation d'une table permet de coder
+les chaînes de caractères décrivant les hyperviseurs afin de pouvoir les
+utiliser dans BtrPlace.
 
 Dans le cas présent, la dimension $d=v_i$ peut très bien être de type booléene:
 si le nœud supporte le type, $d$ est vraie, sinon $d$ est fausse.
@@ -191,7 +190,12 @@ Cependant, les licences d'utilisations des hyperviseurs spécifient
 parfois un nombre limités de machines virtuelles pouvant tourner. Afin
 de prendre en compte ce cas, il est intéressant d'utiliser une dimension
 entière, représentant le nombre de machines virtuelles de type $t$
-autorisées à fonctionner sur le nœud.
+autorisées à fonctionner sur le nœud. C'est le cas pour les produits
+VMWare\footnote{\url{https://www.vmware.com/support/licensing/per-vm/}}.
+Des limitations pour d'autres ressources (RAM, NIC, etc.) existent pour
+XenServer\footnote{\url{http://support.citrix.com/article/CTX134887\#P98\_7562}},
+ce qui laisse sous-entendre que la modélisation utilisée ici pourrait
+être utilisée pourrait être étendue.
 
 L'équation $(0)$ est équivalente à l'équation suivante, exprimée en terme
 de contraintes:
@@ -208,15 +212,15 @@ dans la section implémentation.
 \subsection{Cas particulier : le nouveau type d'une plateforme est connu}
 Lorsque le nouveau type est une propriété du modèle qui n'a pas à être
 déterminée par le solveur, le problème peut être simplifié. L'utilisation
-d'une slice pour la dimension de temps devient inutile; on peut se contenter
-de deux variables indiquant les temps de début et de fin de l'opération de
-déploiement, respectivement notés $D^\mathrm{st}$ et $D^\mathrm{ed}$.
+d'une slice pour la dimension de temps devient inutile; deux variables indiquant
+les temps de début et de fin de l'opération de déploiement, respectivement notés $D^\mathrm{st}$ et $D^\mathrm{ed}$, sont suffisantes.
 
 Le type du nœud étant modifié, les VMs présentes au début de la reconfiguration
 doivent nécessairement être déplacées ou migrées, suivant les autres
 contraintes. Les nouvelles VMs peuvent alors être placées à l'aide de
 la contrainte \textit{fence}, d'une façon similaire à ce qui se passe dans
-\textit{entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/StaticPlatform.java:40}. \textit{Fence} contraint un ensemble de VMs à tourner sur un
+\textit{StaticPlatform.java}\footnote{\url{https://github.com/Heaumer/pfe/blob/master/entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/StaticPlatform.java}}.
+\textit{Fence} contraint un ensemble de VMs à tourner sur un
 ensemble de nœuds; donc dans le cas présent, limite le placement des VMs
 au nœuds ayant le même type.
 
@@ -247,29 +251,29 @@ Cette contrainte doit être implémentée dans BtrPlace via Choco.
 \section{Implémentation}
 \subsection{Cas particulier}
 \begin{verbatim}
-XXX Interface: Platform({ nœud_i -> plateforme, nœud_j -> plateforme, …})
+Interface: Platform({ nœud_i -> plateforme, nœud_j -> plateforme, …})
 \end{verbatim}
 
-On ajoute une nouvelle contrainte de placement \textit{Platform}. Son
+Une nouvelle contrainte de placement \textit{Platform} est ajoutée. Son
 constructeur prends en argument une \textit{HashMap} associant les
 nœuds devant changer de type à leur nouvelle plateforme.
 
-On contraint alors les VMs présentent sur le nœud à se déplacer
-avant le temps de début de redémarage du serveur. Pour cela, on
-récupère les c-slices des actions associées aux VMs, et on ajoute
-une contrainte sur le temps de fin de ces slices.
+Les VMs présentent sur le nœud sont alors contraintes à se déplacer
+avant le temps de début de redémarrage du serveur. Pour ce faire,
+cette contrainte de temps est mise sur les c-slices des actions
+associées à ces VMs.
 
-Enfin, si le nœud s'apprête à changer de type, on regarde toutes
-les d-slices entrant en jeu dans la reconfiguration. On sélectionne
-ensuite les d-slices dont les VMs ont le même type que le nœud à la fin
-du processus. Finalement, on contraint ces slices à ne démarrer
+Enfin, si le nœud s'apprête à changer de type, parmi les
+d-slices entrant en jeu dans la reconfiguration, celles dont
+les les VMs associées ont le même type que le nœud à la fin du processus
+sont sélectionnées. Finalement, ces slices sont contraintes à ne démarrer
 qu'après la fin du processus de retypage, c'est-à-dire une fois que
 le nœud a bien redémarré et changé d'hyperviseur.
 
-Le code implémentant la contrainte est disponible via le fichier
-\textit{entropy-src/main/java/entropy/vjob/Platform.java}. Cette
-classe est testée en suivant des use-cases définis par Fabien Hermenier dans
-\textit{entropy-fh/src/test/java/entropy/vjob/constraint/TestPlatform.java}
+Le code implémentant la contrainte est
+disponible\footnote{\url{https://github.com/Heaumer/pfe/blob/master/entropy-fh/src/main/java/entropy/vjob/Platform.java}}. Cette
+classe est testée\footnote{\url{https://github.com/Heaumer/pfe/blob/master/entropy-fh/src/test/java/entropy/vjob/constraint/TestPlatform.java}}
+en suivant des use-cases définis par Fabien Hermenier.
 
 \subsection{Cas général}
 La documentation d'\textit{Occurence}:
