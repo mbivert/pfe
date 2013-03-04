@@ -1,0 +1,110 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsfonts}
+\usepackage[francais,english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[]{fullpage}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{subfigure}
+
+\makeatletter
+\def\thickhrulefill{\leavevmode \leaders \hrule height 1pt\hfill \kern \z@}
+\def\maketitle{%
+  \null
+  \thispagestyle{empty}%
+  \vskip 1cm
+  \begin{flushright}
+        \normalfont\Large\@author
+  \end{flushright}
+  \vfil
+  \hrule height 2pt
+  \par
+  \begin{center}
+        \huge \strut \@title \par
+  \end{center}
+  \hrule height 2pt
+  \begin{center}
+  		Mars $2013$
+  \end{center}
+  \par
+  \vfil
+  \vfil
+  \null
+\begin{center}
+\Huge{Placement constraints for a better QoS in clouds}
+\end{center}
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.45]{imgs/cloud.png}
+\end{figure}
+\vfil
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.5]{imgs/polytech.png}
+\end{figure}
+\vfil
+\begin{description}
+	\item[Entreprise] Université de Nice-Sophia Antipolis
+	\item[Lieu] Sophia-Antipolis, France
+	\item[Responsable] Fabien Hermenier, équipe OASIS,
+		\href{mailto:fabien.hermenier@unice.fr}{fabien.hermenier@unice.fr}
+\end{description}
+\cleardoublepage
+}
+\makeatother
+\author{Mathieu Bivert, CSSR, \href{mailto:bivert@essi.fr}{bivert@essi.fr}}
+\title{PFE : Rendu intérmédiaire $D_3$ (draft)}
+
+\begin{document}
+\maketitle
+
+\selectlanguage{francais}
+	\begin{abstract}
+		L'ajout d'un type représentant les hyperviseurs dans $D_2$ permet
+		l'implémentation de nouvelles contraintes dans BtrPlace. Ce
+		document en présente quelques unes. Le lecteur est renvoyé à
+		la première section de $D_2$ pour des définitions précises du
+		vocabulaire employés ici.
+	\end{abstract}
+
+\selectlanguage{english}
+	\begin{abstract}
+		The addition of a type to represent the available hypervisors
+		for a node in $D_2$ allows to implement new constraints in
+		BtrPlace. This documents presents some of those possible
+		constraints. The reader may refer to $D_2$ to find definitions
+		of the vocabulary being used here.
+	\end{abstract}
+
+\selectlanguage{francais}
+
+\tableofcontents
+\newpage
+
+\section{Motivations}
+BtrPlace est un logiciel permettant de trouver efficacement une solution
+à un problème de placement de machines virtuelles sur des serveurs
+physiques. Pour ce faire, l'utilisateur utilise des contraintes fournies
+par BtrPlace. Celles-ci permettent de rendre compte de certaines
+limitations (eg. ressources mémoire/cpu/réseau), d'une topologie
+particulière des composants d'une application (eg. réplicat de
+serveurs pour augmenter la disponibilité), etc.
+
+Dans $D_2$, le modèle théorique de BtrPlace est étendu afin de permettre
+le typage des nœuds et des plateformes. Les contraintes qui en découlent
+portent sur la compatibilité entre machines virtuelles et nœuds, sur
+la capacité à un serveur physique de faire tourner un hyperviseur donné,
+ou encore sur le nombre de machines virtuelles d'un type donné pouvant
+tourner sur un hyperviseur.
+
+\section{Interaction avec le modèle de $D_2$}
+\subsection{Modèlisation}
+\subsection{Implémentation}
+\subsection{Validation}
+
+\section{Exemples de contraintes}
+\subsection{Nombre maximum et minimum de machines virtuelles}
+
+\end{document}
