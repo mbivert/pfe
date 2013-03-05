@@ -7,6 +7,10 @@ import entropy.configuration.SimpleNode;
 
 
 public class Retype extends Startup {
+    public String getNewPlatform() {
+        return newPlatform;
+    }
+
     private String newPlatform;
 
     public Retype(Node n, int s, int f, String newPlatform) {

@@ -83,7 +83,7 @@ public class TestRetypeNodeActionModel {
         n.addPlatform("foo");        // old platform
         n.addPlatform("bar");        // new -
         n.setCurrentPlatform("foo");
-        HashMap<Node,String> willChange =new HashMap<Node, String>();
+        HashMap<Node,String> willChange = new HashMap<Node, String>();
         willChange.put(n, "bar");
         src.addOnline(n);
 //        dst.addOffline(n);

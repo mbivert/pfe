@@ -1,23 +1,22 @@
 package entropy.vjob;
 
+import choco.kernel.solver.variables.integer.IntDomainVar;
 import entropy.configuration.Configuration;
 import entropy.configuration.ManagedElementSet;
 import entropy.configuration.Node;
 import entropy.configuration.VirtualMachine;
+import entropy.plan.action.Action;
+import entropy.plan.action.Retype;
 import entropy.plan.choco.ReconfigurationProblem;
 import entropy.vjob.builder.protobuf.PBVJob;
 
-import java.util.List;
-
-
-public class MinMaxVM implements PlacementConstraint {
+public class MaxVM implements PlacementConstraint {
     private int nVM;
     private String type;
     private ManagedElementSet<Node> nodes;
-    boolean minmax; // true: min, false: max (maybe use enum)
 
-    public MinMaxVM(ManagedElementSet<Node> nodes, boolean minmax, String type, int nVM) {
-        this.minmax = minmax;
+    /* constraint nodes with hypervisor type not to run more than nVM virtual machines */
+    public MaxVM(ManagedElementSet<Node> nodes, String type, int nVM) {
         this.type = type;
         this.nVM = nVM;
         this.nodes = nodes;
@@ -28,31 +27,22 @@ public class MinMaxVM implements PlacementConstraint {
     }
 
     public void inject(ReconfigurationProblem core) {
-        for (Node n : nodes) {
-            if (n.getCurrentPlatform().equals(type)) {
-                /* at least 'nVM' vm with hypervisor 'type' */
-                if (minmax == true) {
-                    core.post(core.leq(nVM, core.getNbHosted(n)));
-                }
-                /* at most … */
-                else {
-                    core.post(core.geq(nVM, core.getNbHosted(n)));
-                }
+        IntDomainVar nt = core.createIntegerConstant("", 0);
+
+        for (Node n : nodes)
+            /* for each action associated with n */
+            for (Action a : core.getAssociatedAction(n).getDefinedAction(core)) {
+                /* if the action consist in retyping the node to the registred type */
+                if (a instanceof Retype && ((Retype)a).getNewPlatform().equals(type))
+                    core.plus(nt, 1);
             }
-        }
+        core.leq(nt, nVM);
     }
 
     public boolean isSatisfied(Configuration cfg) {
-        for (Node n : nodes) {
-            if (n.getCurrentPlatform().equals(type)) {
-                /* at least */
-                if (minmax == true && nVM > cfg.getRunnings(n).size())
-                    return false;
-                /* at most  */
-                if (minmax == false && nVM < cfg.getRunnings(n).size())
-                    return false;
-            }
-        }
+        for (Node n : nodes)
+            if (n.getCurrentPlatform().equals(type) && nVM < cfg.getRunnings(n).size())
+                return false;
         return true;
     }
 

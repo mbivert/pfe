@@ -56,14 +56,18 @@
 \begin{document}
 \maketitle
 
+\tableofcontents
+\newpage
+
 \section{Vocabulaire et notations}
 \begin{description}
-	\item[Type] entier $t$ associé à chaque système de virtualisation;
-	\item[VM] machine virtuelle, notée $v \in \mathcal V$, à laquelle
-		est associée un type fixe $T(v)$ et une place $P(v)$;
+	\item[Type] entier $t \in \mathcal T$ associé à chaque système de virtualisation,
+		par exemple, KVM$=0$, VMWare$=1$, \ldots
 	\item[Nœud] serveur physique, noté $n \in \mathcal N$,doté d'un
 		type courant $T(n)$ et d'un ensemble de types possibles
 		$\mathcal{T}_n$;
+	\item[VM] machine virtuelle, notée $v \in \mathcal V$, à laquelle
+		est associée un type fixe $T(v) \in \mathcal T$ et un emplacement courant $P(v) \in \mathcal N$;
 	\item[Déploiement] opération de redémarrage de nœud, éventuellement
 		accompagnée d'un changement de type pour le nœud.
 	\item[Reconfiguration] opération durant laquelle BtrPlace change le
@@ -90,7 +94,6 @@ sinon, elle vaut $0$. Dans les graphes suivants, elle est représentée
 à part pour des questions de lisibilité.
 
 \section{Configuration d'exemple}
-\subsection{Cas général}
 Dans un premier temps, on cherche à obtenir une configuration minimaliste,
 mettant en œuvre suffisamment d'éléments pour représenter le problème:
 \begin{figure}[!ht]
@@ -103,10 +106,10 @@ mettant en œuvre suffisamment d'éléments pour représenter le problème:
 Sur la figure \ref{config}, $v_1$ et $v_2$ sont deux machines
 virtuelles de types différents, par exemple Xen et VMWare.
 Pour simplifier le problème, on ne considère que des actions
-de démarrage et d'éteignage pour les VMs. En effet, on pourrait
-remplacer celles-ci par des migrations par exemple, ce qui
-nécessiterait de mettre en ligne d'autres nœuds, donc d'augmenter
-la complexité de la configuration.
+de démarrage et d'éteignage pour les VMs. En effet, considérer
+d'autres types d'actions dans cet exemple ne change pas le
+problème, la modélisation par des slices permettant de s'abstraire
+des actions précises sur VMs.
 
 L'opération de déploiement sur le nœud $n_1$ se résume à:
 \begin{enumerate}
@@ -119,17 +122,44 @@ L'opération de déploiement sur le nœud $n_1$ se résume à:
 Le temps $T_d$ pris par cette opération est spécifié par l'admninistrateur
 du datacenter dans la configuration de BtrPlace.
 
-Pour que la reconfiguration puisse avoir lieu, les contraintes suivantes
-doivent être respectées:
-\begin{itemize}
-	\item Par convention, l'opération de changement de type commence quand
-		l'utilisation mémoire de $n_1$ est nulle, ie. lorsqu'aucune VM
-		ne tourne dessus;
-	\item $d_0^{st} \geq c^{ed}$;
-	\item $d_1^{st} \geq T_d$;
-\end{itemize}
+\section{Modélisation}
+Dans ce  paragraphe, on cherche un modèle correspondant à l'exemple du
+paragraphe précèdent. On commence par décrire le cas général, puis on
+travaille par incrément depuis un cas particulier pour arriver à une
+implémentation « complète ».
 
-\subsection{Type connu à l'avance}
+\subsection{Cas général}
+Pour chaque type de plateforme, un dimension est ajoutée à chaque
+nœud.
+
+Pour le cas présent, la dimension $d$ peut très bien être de type booléene:
+si le nœud supporte le type, $d$ est vraie, sinon $d$ est fausse.
+Cependant, les licences d'utilisations des hyperviseurs spécifient
+parfois un nombre limités de machines virtuelles pouvant tourner. Afin
+de prendre en compte ce cas, il est intéressant d'utiliser une dimension
+entière, représentant le nombre de machines virtuelles de type $t$
+autorisées à fonctionner sur le nœud.
+
+Le placement est satisfait ssi au plus une seule de ces dimensions est
+non nulle:
+\[
+	(\exists ! x \in v_i), x \neq 0
+	\Leftrightarrow OccurenceMin(0, v_i) == len(v_i)-1
+\]
+
+\begin{verbatim}
+XXX occurencemin/max deprecated?
+https://www.iam.unibe.ch/scg/svn_repos/Students/haense/CaseStudies/choco/choco-kernel/src/main/java/choco/DeprecatedChoco.java
+\end{verbatim}
+
+La contrainte est donc satisfaite pour un nœud $n$ dans deux cas:
+\begin{enumerate}
+	\item $v_i$ ne contient que des $0$ : aucun hyperviseur n'est actif;
+	\item $v_i$ a une composante non-nulle : un unique hyperviseur tourne sur $n$.
+\end{enumerate}
+
+
+\subsection{Cas simple : le nouveau type d'une plateforme est connu}
 Lorsque le nouveau type est une propriété du modèle qui n'a pas à être
 déterminée par le solveur, le problème peut être simplifié. L'utilisation
 d'une slice pour la dimension de temps devient inutile; on peut se contenter
@@ -140,10 +170,14 @@ Le type du nœud étant modifié, les VMs présentes au début de la reconfigura
 doivent nécessairement être déplacées ou migrées, suivant les autres
 contraintes. Les nouvelles VMs peuvent alors être placées à l'aide de
 la contrainte \textit{fence}, d'une façon similaire à ce qui se passe dans
-\textit{entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/StaticPlatform.java:40}.
+\textit{entropy-fh/src/main/java/entropy/plan/choco/constraint/platform/StaticPlatform.java:40}. \textit{Fence} contraint un ensemble de VMs à tourner sur un
+ensemble de nœuds; donc dans le cas présent, limite le placement des VMs
+au nœuds ayant le même type.
 
+\subsubsection{Formalisation}
 Pour satisfaire le placement sur un nœud $n$, deux contraintes supplémentaires sont
 données au solveur:
+
 \begin{enumerate}
 	\item Les anciennes VMs partent avant le début de l'opération de
 		redéploiement, c'est-à-dire,
@@ -156,10 +190,20 @@ données au solveur:
 	(\forall d \in \mathcal D), P(d) = n \Rightarrow d^\mathrm{st} \geq D^\mathrm{ed}
 \]
 \end{enumerate}
+Le placement est satisfait ssi chaque VM est bien placée sur
+un nœud de même type, ie.:
+\[
+	(\forall v \in \mathcal V), (\exists n \in \mathcal N), P(v) = n
+		\Rightarrow T(n) = T(v)	
+\]
 
-\subsection{Implémentation}
+Cette contrainte doit être implémentée dans BtrPlace via Choco.
 
-% Interface: Platform({ nœud_i -> plateforme, nœud_j -> plateforme, …})
+\subsubsection{Implémentation}
+
+\begin{verbatim}
+XXX Interface: Platform({ nœud_i -> plateforme, nœud_j -> plateforme, …})
+\end{verbatim}
 
 On ajoute une nouvelle contrainte de placement \textit{Platform}. Son
 constructeur prends en argument une \textit{HashMap} associant les
@@ -177,50 +221,13 @@ du processus. Finalement, on contraint ces slices à ne démarrer
 qu'après la fin du processus de retypage, c'est-à-dire une fois que
 le nœud a bien redémarré et changé d'hyperviseur.
 
-% \subsection{Sans changement de type}
-% On observe maintenant ce qu'il se passe si le type reste constant, de
-% façon à s'assurer que l'ajout d'une nouvelle dimension ne soit pas
-% problématique:
-% \begin{figure}[!ht]
-% 	\centering
-% 	\includegraphics[scale=.45]{imgs/config2.eps}
-% 	\caption{\label{config2} Exemple similaire à celui de la figure
-% 		\ref{config}, mais sans changement de type, les deux VMs sont
-% 		donc du même type; $v_1$ est mise hors-ligne, $v_2$ est allumée}
-% \end{figure}
+Le code implémentant la contrainte est disponible via le fichier
+\textit{entropy-fh/src/main/java/entropy/vjob/Platform.java}. Cette
+classe est testée en suivant des use-cases définis par Fabien Hermenier dans
+\textit{entropy-fh/src/test/java/entropy/vjob/constraint/TestPlatform.java}
 
-\section{Formalisation}
-Le placement est satisfait ssi chaque VM est bien placée sur
-un nœud de même type, ie.:
-\[
-	(\forall v \in \mathcal V), (\exists n \in \mathcal N), P(v) = n
-		\Rightarrow T(n) = T(v)	
-\]
-
-Cette contrainte doit être implémentée dans BtrPlace via Choco.
-
-\section{Généralisation}
-Pour chaque type de plateforme, un dimension est ajoutée à chaque
-nœud.
-
-% bool | int représentant nombre de VMs possibles de ce type
-% (utile pour les licences limitées)
-
-Le placement est satisfait ssi au plus une seule de ces dimensions est
-non nulle:
-\[
-	(\exists ! x \in v_i), x \neq 0
-	\Leftrightarrow OccurenceMin(0, v_i) == len(v_i)-1
-\]
-
-% occurencemin/max deprecated?
-% https://www.iam.unibe.ch/scg/svn_repos/Students/haense/CaseStudies/choco/choco-kernel/src/main/java/choco/DeprecatedChoco.java
-
-La contrainte est donc satisfaite pour un nœud $n$ dans deux cas:
-\begin{enumerate}
-	\item $v_i$ ne contient que des $0$ : aucun hyperviseur n'est actif;
-	\item $v_i$ a une composante non-nulle : un unique hyperviseur tourne sur $n$.
-\end{enumerate}
+\subsection{Implémentation du cas général}
+\section{Conclusion}
 
 \newpage
 \selectlanguage{francais}
