@@ -1,0 +1,198 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsfonts}
+\usepackage[francais,english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[]{fullpage}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{subfigure}
+
+\makeatletter
+\def\thickhrulefill{\leavevmode \leaders \hrule height 1pt\hfill \kern \z@}
+\def\maketitle{%
+  \null
+  \thispagestyle{empty}%
+  \vskip 1cm
+  \begin{flushright}
+        \normalfont\Large\@author
+  \end{flushright}
+  \vfil
+  \hrule height 2pt
+  \par
+  \begin{center}
+        \huge \strut \@title \par
+  \end{center}
+  \hrule height 2pt
+  \begin{center}
+  		Mars $2013$
+  \end{center}
+  \par
+  \vfil
+  \vfil
+  \null
+\begin{center}
+\Huge{Placement constraints for a better QoS in clouds}
+\end{center}
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.45]{imgs/cloud.png}
+\end{figure}
+\vfil
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.5]{imgs/polytech.png}
+\end{figure}
+\vfil
+\begin{description}
+	\item[Coût du livrable] $38$ heures
+	\item[Budget total du projet] $304$ heures
+	\item[Entreprise] Université de Nice-Sophia Antipolis
+	\item[Lieu] Sophia-Antipolis, France
+	\item[Responsable] Fabien Hermenier, équipe OASIS,
+		\href{mailto:fabien.hermenier@unice.fr}{fabien.hermenier@unice.fr}
+\end{description}
+\cleardoublepage
+}
+\makeatother
+\author{Mathieu Bivert, CSSR, \href{mailto:bivert@essi.fr}{bivert@essi.fr}}
+\title{PFE : Rapport de management ($D_4$) (draft)}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+\section{Description du projet}
+On renvoye le lecteur à la section \textit{Description du projet} du DOW
+pour description plus précise de l'environnement, du vocabulaire et des
+besoins de l'utilisateur.
+
+BtrPlace est un logiciel développé à l'INRIA par Fabien Hermenier qui place
+efficacement un ensemble de machines virtuelles sur un ensemble de serveurs
+physiques à l'aide de contraintes. Celles-ci sont principalement de deux
+natures:
+\begin{enumerate}
+	\item les contraintes spécifiées par l'utilisateur, qui répondent
+		généralement à des cas d'utilisations particuliers;
+	\item les contraintes imposées par les ressources disponibles, portant
+		par exemple sur la mémoire, la puissance de calcul disponibles sur
+		un nœud.
+\end{enumerate}
+
+Dans le cadre de ce projet, on se propose de travailler en deux temps:
+\begin{enumerate}
+	\item ajouter au modèle théorique sous-jacent là possibilité de
+		\textit{typer} les nœuds et les VMs pour rendre compte de la présence
+		de multiples hyperviseurs (Xen, VMWare, etc.);
+	\item concevoir et implémenter des \textit{contraintes} mettant en œuvre
+		ce typage.
+\end{enumerate}
+
+Pour ce faire, le travail a suivi une progression incrémentale:
+\begin{enumerate}
+	\item on a commencé par chercher un cas simple du typage, et on
+		implémente une contrainte le décrivant;
+	\item dans un premier temps, on exprime le typage dans un cas plus
+		général, d'abords mathématiquement, puis, toujours d'une façon
+		abstraite, sous forme de contrainte;
+	\item enfin, on implémente des contraintes mettant en œuvre ceci.
+\end{enumerate}
+
+\section{Synthèse des résultats obtenus}
+\subsection{Support du typage}
+\subsubsection{Cas particulier}
+On ajoute une contrainte permettant d'associer à des nœuds un
+nouvel type, c'est-à-dire en pratique, d'effectuer une action de
+retypage sur un ensemble de nœuds. Cette dernière se décompose en:
+\begin{enumerate}
+	\item migrer les éventuelles VMs tournant sur ce nœuds;
+	\item éteindre le nœud;
+	\item le redémarrer sous un nouvel hyperviseur.
+\end{enumerate}
+\subsubsection{Cas général}
+On associe à chaque nœud un vecteur contenant un élément pour
+chaque hyperviseur possible. Sémantiquement, les éléments de ce
+vecteur représentent le nombre de machines virtuelles d'un type donné
+tournant sur ce nœud. Une valeur nulle indique que l'hyperviseur
+n'est pas utilisé; si le vecteur ne contient que des zéros, alors
+le nœud est considéré comme éteint.
+
+Il s'en suit qu'une seule composante du vecteur peut-être non nulle :
+un nœud ne peut pas faire tourner deux hyperviseurs simultanément.
+
+\subsection{Nouvelles contraintes}
+En plus de la contrainte du cas particulier, deux nouvelles
+contraintes peuvent être implémentée. La première permet de répondre
+aux limitations induites par les licences des logiciels de
+virtualisation, en fixant une limite au nombre de machines virtuelles
+tournant sur un nœud. Une variante de celle-ci est de restreindre
+le nombre de nœuds tournant de façon simultanée sous un même
+hyperviseur. Enfin, afin de s'assurer de la présence de certaines
+plateformes pour faciler les opérations de déploiement future, on
+peut aussi s'assurer qu'il existe au moins un nombre donné de nœuds
+faisant tourner un hyperviseur.
+
+\section{Implication des personnes}
+XXX
+\subsection{Fabien Hermenier}
+\subsection{Mathieu Bivert}
+
+\section{Synthèses des livraisons}
+Les livraisons sont effectués pour mercredi $7$ mars $2013$, ce qui n'est
+pas conforme au planning prévu. L'un des problèmes majeurs recontrés
+repose sur l'approche incrémentale utilisée. Bien que celle-ci permette
+de progresser facilement, elle a tendance à lier fortement les différentes
+composantes du projet. L'interdépendance entre les éléments des lots complique
+la possibilité de rendre au temps fixé dans le DOW les différents livrables.
+
+Pour la même raison, la structure des livrables $D_2$ et $D_3$ n'est pas
+optimale : en effet, la majeure partie de l'implémentation du modèle décrit
+dans $D_2$ est à placer dans les contraintes présentes dans $D_3$. Ces
+problèmes n'avaient pas été envisagés dans le DOW.
+
+\section{Suivi budgétaire}
+\subsection{Consommation du budget}
+Le temps de rédaction des rapports et pour la gestion du management du projet
+ont été surévalués : il aurait été plus judicieux de passer plus de temps
+sur l'implémentation du code.
+\subsection{Synthèse}
+Globalement, le budget fixé a été respecté. Le projet était peut-être un
+peu trop ambitieux au vu du temps difficile à prévoir pour les cours et
+évènements para-scolaires.
+\section{Suivi des lots}
+XXX
+\section{Synthèse et retour d'expérience}
+En ne prenant en compte que le projet, la gestion du temps était
+loin d'être optimale. Bien que la partie théorique soit assez facile
+à comprendre, sa mise en œuvre dans BtrPlace est bien plus difficile.
+La complexité de l'implémentation est à mon avis l'un des facteurs
+majeurs justifiant le temps passé à implémenter le modèle.
+Une solution à ce problème de complexité serait de ré-implémenter
+BtrPlace dans un langage plus adapté pour la programmation par
+contrainte (Prolog, Lisp, etc.), mais cela nécessite d'étudier le
+coût d'une telle ré-écriture. En effet, la nouvelle solution peut-être
+plus facile à comprendre et à étendre, mais elle peut aussi:
+\begin{enumerate}
+	\item être moins performante et plus difficilement optimisable;
+	\item nécessiter un temps d'implémentation pas forcément rentable
+		par rapport au temps pouvant être mis à étendre le code actuel
+		par une personne en ayant une conaissance approfondie.
+\end{enumerate}
+
+À l'heure actuelle, les ajouts en terme de code sont incomplets, mais:
+\begin{enumerate}
+	\item l'implémentation du typage telle que décrite plus haut
+		permet de résoudre un autre projet proposé par Fabien
+		Hermenier, à savoir la gestion de la limitation sur le nombre
+		de VMs pour un hyperviseur donné pour des questions de
+		licence;
+	\item le modèle théorique peut-être facilement étendu pour gérer
+		d'autres limitations au niveau des ressources, en fonction
+		du type de l'hyperviseur. En effet, les licences des systèmes
+		de virtualisation imposent généralement des limites sur la
+		quantité de RAM utilisable, sur la puissance CPU ou encore
+		limite le nombre d'interface réseau, la quantité de RAM, etc.
+\end{enumerate}
+
+\end{document}
