@@ -26,7 +26,7 @@
   \end{center}
   \hrule height 2pt
   \begin{center}
-  		Mars $2013$
+  		$7$ Mars $2013$
   \end{center}
   \par
   \vfil
@@ -57,7 +57,7 @@
 }
 \makeatother
 \author{Mathieu Bivert, CSSR, \href{mailto:bivert@essi.fr}{bivert@essi.fr}}
-\title{PFE : Rapport de management ($D_4$) (draft)}
+\title{PFE : Rapport de management ($D_4$)}
 
 \begin{document}
 \maketitle
@@ -74,7 +74,7 @@ physiques à l'aide de contraintes. Celles-ci sont principalement de deux
 natures:
 \begin{enumerate}
 	\item les contraintes spécifiées par l'utilisateur, qui répondent
-		généralement à des cas d'utilisations particuliers, par exemple
+		à des cas d'utilisations particuliers, par exemple
 		avoir à disposition un serveur sous un hyperviseur donné pour y migrer
 		des VMs en cas de problèmes sur un autre serveur;
 	\item les contraintes imposées par les ressources disponibles, portant
@@ -84,7 +84,7 @@ natures:
 
 Dans le cadre de ce projet, on a travaillé en deux temps:
 \begin{enumerate}
-	\item ajouter au modèle théorique sous-jacent là possibilité de
+	\item ajouter au modèle théorique derrière BtrPlace la possibilité de
 		\textit{typer} les nœuds et les VMs pour rendre compte de la présence
 		de multiples hyperviseurs (Xen, VMWare, etc.);
 	\item concevoir et implémenter des \textit{contraintes} mettant en œuvre
@@ -95,10 +95,10 @@ Pour ce faire, le travail a suivi une progression incrémentale:
 \begin{enumerate}
 	\item on a commencé par chercher un cas simple du typage, et on
 		a implémenté une contrainte le décrivant;
-	\item dans un premier temps, on exprime le typage dans un cas plus
+	\item dans un second temps, on a exprimé le typage dans un cas plus
 		général, d'abords mathématiquement, puis, toujours d'une façon
 		abstraite, sous forme de contraintes;
-	\item enfin, on implémente des contraintes mettant en œuvre ceci.
+	\item enfin, on implémente des contraintes dans BtrPlace avec Choco.
 \end{enumerate}
 
 \section{Synthèse des résultats obtenus}
@@ -110,7 +110,7 @@ action de retypage sur un ensemble de nœuds. Cette dernière s'assure que:
 \begin{enumerate}
 	\item les VMs sont parties avant le redémarrage du nœud;
 	\item les VMs pouvant migrer sur ce nœud ne le feront qu'après le
-		redémarrage du nœud.
+		redémarrage de celui-ci.
 \end{enumerate}
 \subsubsection{Cas général}
 On associe à chaque nœud un vecteur contenant un élément pour
@@ -129,12 +129,10 @@ contraintes peuvent être implémentée. La première, \textit{MaxVM}
 permet de répondre aux limitations induites par les licences des logiciels de
 virtualisation\footnote{\url{https://www.vmware.com/support/licensing/per-vm/}},
 en fixant une limite au nombre de machines virtuelles
-tournant sur un nœud. Une variante de celle-ci est de restreindre
-le nombre de nœuds tournant de façon simultanée sous un même
-hyperviseur, afin d'augmenter la QoS. Enfin, afin de s'assurer de
+tournant sur un nœud. Afin de s'assurer de
 la présence de certaines plateformes pour faciler les opérations de
-déploiement future, on peut aussi s'assurer qu'il existe au moins
-un nombre donné de nœuds faisant tourner un hyperviseur.
+déploiement future, la contrainte \textit{MinPlatform} s'assure qu'il
+existe au moins un nombre donné de nœuds faisant tourner un hyperviseur.
 
 \section{Implication des personnes}
 \subsection{Fabien Hermenier}
@@ -159,8 +157,8 @@ demandé, puis nous avons:
 \end{itemize}
 
 \section{Synthèses des livraisons}
-Les livraisons sont effectués pour mercredi $7$ mars $2013$, ce qui n'est
-pas conforme au planning prévu. L'un des problèmes majeurs recontrés
+Les livraisons sont effectuées pour mercredi $7$ mars $2013$, ce qui n'est
+pas conforme au planning prévu. L'un des problèmes rencontrés
 repose sur l'approche incrémentale utilisée. Bien que celle-ci permette
 de progresser facilement, elle a tendance à lier fortement les différentes
 composantes du projet. L'interdépendance entre contraintes et implémentation
@@ -196,6 +194,14 @@ Une quinzaine d'heures de travail n'ont pas été consommée par rapport
 au budget de $304$ heures (environ $5$% du temps total) suite à une
 mauvaise compréhension de la date de fin, qui s'est avérer être deux
 jours plus tôt.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.5]{imgs/pie.png}
+\end{figure}
+
+Le code du cas particulier et le modèle du cas général ont été validés
+par l'encadrant.
 
 \subsection{Management du projet}
 La planification du projet (DOW) ainsi que le rapport ci-présent sont
@@ -248,21 +254,21 @@ prendre en main efficacement le logiciel.
 \end{enumerate}
 
 Au niveau des compétences, le projet m'a permis de revisiter
-certains éléments, tels que 
+certains éléments, tels que :
 \begin{itemize}
 	\item Java;
 	\item les tests unitaires pour la validation;
 	\item git comme gestionnaire de version;
 	\item la modélisation mathématiques
-	\item etc.
+	\item programmation par contraintes
 \end{itemize}
-et d'en acquérir de nouvelles:
+et d'en acquérir de nouvelles, comme:
 \begin{itemize}
 	\item IDE (IntelliJ);
 	\item outil de déploiement (Maven);
 	\item framework Choco;
 	\item gestionnaire de ressources;
-	\item etc.
+	\item problèmes combinatoires
 \end{itemize}
 
 Du point de vue du management, j'ai appris qu'il me faut mieux gérer
