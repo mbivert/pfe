@@ -99,13 +99,63 @@ la capacité à un serveur physique de faire tourner un hyperviseur donné,
 ou encore sur le nombre de machines virtuelles d'un type donné pouvant
 tourner sur un hyperviseur.
 
-\section{Interaction avec le modèle de $D_2$}
-\subsection{Modèlisation}
-\subsection{Implémentation}
-Contraintes de placement, donc implémenter PlacementConstraint
+\section{Implémentation du modèle de $D_2$}
+Deux premières contraintes \textit{Platform} et \textit{TypedPlatform}
+permettent respectivement de changer le type d'un ensemble de nœud, et
+de s'assurer que les VMs d'un type donné sont bien placés sur un nœud
+du même type.
+
+Le lecteur est renvoyé au $D_2$ pour une description plus précise.
+
+\section{Nouvelles contraintes de placement}
+\subsection{Motivations}
+\subsubsection{Licences}
+Comme mentionné dans les autres documents, les licences des hyperviseurs
+limitent les ressources pouvant être utilisées. Par exemple,
+VMWare\footnote{\url{https://www.vmware.com/support/licensing/per-vm/}}
+limite le nombre de machines virtuelles pouvant tourner sur un même nœud;
+Xen limite la mémoire utilisable pour un hyperviseur, ou encore le nombre
+d'interfaces réseaux pouvant être connectées simultanément, voire la puissance
+CPU.
+
+Des contraintes portant sur le type ajoutée peuvent rendre compte de ces
+limitations.
+\subsubsection{QoS}
+Dans le cas d'un déploiement réel, on peut chercher à optimiser le temps
+d'indisponibilité d'un service. Par exemple, supposons qu'un nœud sous un
+hyperviseur Xen tombe en panne : il est impératif que les VMs situées sur
+celui-ci soient migrées au plus vite. Avoir sous la main un nœud « vide »
+tournant sous Xen permet d'éviter d'avoir à redémarrer un nœud.
+
+Une contrainte s'assurant qu'il existe au moins un certain nombre de nœud
+tournant sous un hyperviseur donné permet de palier à ce problème. On
+pourrait raffiner la contrainte, et s'assurer que pour un type, il existe
+au moins un nœud capable de recevoir telle ou telle VM en cas de problèmes.
+
 \subsection{Validation}
+De même que pour la contrainte du cas général, ces contraintes ne sont
+pas validées par manque de temps. Il faudrait définir des cas d'utilisation
+précis avec l'encadrant, puis implémenter des tests unitaires les mettant
+en œuvre.
 
 \section{Exemples de contraintes}
-\subsection{Nombre maximum et minimum de machines virtuelles}
+L'implémentations est réduite au strict minimum, c'est-à-dire à l'injection
+de contraintes dans choco et au test de leur satisfiabilité.
+\subsection{Nombre maximum de machines virtuelles}
+La contrainte \textit{MaxVM}\footnote{https://github.com/Heaumer/pfe/blob/master/entropy-fh/src/main/java/entropy/vjob/MaxVM.java}
+implémente le cas décrit dans la section précèdente. Son constructeur prends
+en argument un ensemble de nœud, le type sur lequel porte la limitation, et
+enfin le nombre maximum de VMs pour ce type. Pour chaque nœud, on regarde
+si une action de retypage est prévue. Si c'est le cas, et que le nouveau
+type correspond à celui spécifié par l'utilisateur, on s'assure que le nombre
+de VMs sur ce nœud est inférieur à la borne.
+
+\subsection{Nombre minimum de nœud d'un type donné}
+La contrainte \textit{MinPlatform}\footnote{https://github.com/Heaumer/pfe/blob/master/entropy-fh/src/main/java/entropy/vjob/MinPlatform.java}
+spécifie que pour un type donné, au moins \textit{nType} nœuds tournent sous
+un hyperviseur \textit{type}. Pour ce faire, une variable est incrémenté à
+chaque fois qu'un nœud du type requis est trouvé, puis, on renseigne choco
+sur le fait que cette variable doit être inférieur à la borne donnée par
+l'utilisateur.
 
 \end{document}

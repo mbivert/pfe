@@ -31,12 +31,10 @@ public class MaxVM implements PlacementConstraint {
 
         for (Node n : nodes)
             /* for each action associated with n */
-            for (Action a : core.getAssociatedAction(n).getDefinedAction(core)) {
+            for (Action a : core.getAssociatedAction(n).getDefinedAction(core))
                 /* if the action consist in retyping the node to the registred type */
                 if (a instanceof Retype && ((Retype)a).getNewPlatform().equals(type))
-                    core.plus(nt, 1);
-            }
-        core.leq(nt, nVM);
+                    core.leq(core.getNbHosted(n), nVM);
     }
 
     public boolean isSatisfied(Configuration cfg) {
