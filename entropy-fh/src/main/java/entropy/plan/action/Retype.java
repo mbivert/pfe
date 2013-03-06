@@ -19,19 +19,19 @@ public class Retype extends Startup {
     }
 
     public Retype(Node n, String newPlatform) {
-    	this(n, 0, 0, newPlatform);
+        this(n, 0, 0, newPlatform);
     }
 
     @Override
-	public boolean apply(Configuration c) {
+    public boolean apply(Configuration c) {
         Node newNode = this.getNode().clone();
         c.remove(this.getNode());
 
         boolean b = newNode.setCurrentPlatform(newPlatform);
-		c.addOnline(newNode); // never fail
+        c.addOnline(newNode); // never fail
 
         return b;
-	}
+    }
 
     @Override
     public boolean isCompatibleWith(Configuration src) {

@@ -82,7 +82,7 @@ public class RetypeNodeActionModel extends ManageableNodeActionModel {
 
         l.add(new Shutdown(getNode(), 0, dShutdown.getVal()));
 
-		l.add(new Retype(getNode(), dShutdown.getVal(), dShutdown.getVal()+dRetype.getVal(), newPlatform));
+        l.add(new Retype(getNode(), dShutdown.getVal(), dShutdown.getVal()+dRetype.getVal(), newPlatform));
 
         return l;
     }
