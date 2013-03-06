@@ -74,13 +74,15 @@ physiques à l'aide de contraintes. Celles-ci sont principalement de deux
 natures:
 \begin{enumerate}
 	\item les contraintes spécifiées par l'utilisateur, qui répondent
-		généralement à des cas d'utilisations particuliers;
+		généralement à des cas d'utilisations particuliers, par exemple
+		avoir à disposition un serveur sous un hyperviseur donné pour y migrer
+		des VMs en cas de problèmes sur un autre serveur;
 	\item les contraintes imposées par les ressources disponibles, portant
 		par exemple sur la mémoire, la puissance de calcul disponibles sur
 		un nœud.
 \end{enumerate}
 
-Dans le cadre de ce projet, on se propose de travailler en deux temps:
+Dans le cadre de ce projet, on a travaillé en deux temps:
 \begin{enumerate}
 	\item ajouter au modèle théorique sous-jacent là possibilité de
 		\textit{typer} les nœuds et les VMs pour rendre compte de la présence
@@ -92,23 +94,23 @@ Dans le cadre de ce projet, on se propose de travailler en deux temps:
 Pour ce faire, le travail a suivi une progression incrémentale:
 \begin{enumerate}
 	\item on a commencé par chercher un cas simple du typage, et on
-		implémente une contrainte le décrivant;
+		a implémenté une contrainte le décrivant;
 	\item dans un premier temps, on exprime le typage dans un cas plus
 		général, d'abords mathématiquement, puis, toujours d'une façon
-		abstraite, sous forme de contrainte;
+		abstraite, sous forme de contraintes;
 	\item enfin, on implémente des contraintes mettant en œuvre ceci.
 \end{enumerate}
 
 \section{Synthèse des résultats obtenus}
 \subsection{Support du typage}
 \subsubsection{Cas particulier}
-On ajoute une contrainte permettant d'associer à des nœuds un
-nouvel type, c'est-à-dire en pratique, d'effectuer une action de
-retypage sur un ensemble de nœuds. Cette dernière se décompose en:
+On a ajouté une contrainte \textit{Platform} permettant d'associer à
+des nœuds un nouvel type, c'est-à-dire en pratique, d'effectuer une
+action de retypage sur un ensemble de nœuds. Cette dernière s'assure que:
 \begin{enumerate}
-	\item migrer les éventuelles VMs tournant sur ce nœuds;
-	\item éteindre le nœud;
-	\item le redémarrer sous un nouvel hyperviseur.
+	\item les VMs sont parties avant le redémarrage du nœud;
+	\item les VMs pouvant migrer sur ce nœud ne le feront qu'après le
+		redémarrage du nœud.
 \end{enumerate}
 \subsubsection{Cas général}
 On associe à chaque nœud un vecteur contenant un élément pour
@@ -123,33 +125,57 @@ un nœud ne peut pas faire tourner deux hyperviseurs simultanément.
 
 \subsection{Nouvelles contraintes}
 En plus de la contrainte du cas particulier, deux nouvelles
-contraintes peuvent être implémentée. La première permet de répondre
-aux limitations induites par les licences des logiciels de
-virtualisation, en fixant une limite au nombre de machines virtuelles
+contraintes peuvent être implémentée. La première, \textit{MaxVM}
+permet de répondre aux limitations induites par les licences des logiciels de
+virtualisation\footnote{\url{https://www.vmware.com/support/licensing/per-vm/}},
+en fixant une limite au nombre de machines virtuelles
 tournant sur un nœud. Une variante de celle-ci est de restreindre
 le nombre de nœuds tournant de façon simultanée sous un même
-hyperviseur. Enfin, afin de s'assurer de la présence de certaines
-plateformes pour faciler les opérations de déploiement future, on
-peut aussi s'assurer qu'il existe au moins un nombre donné de nœuds
-faisant tourner un hyperviseur.
+hyperviseur, afin d'augmenter la QoS. Enfin, afin de s'assurer de
+la présence de certaines plateformes pour faciler les opérations de
+déploiement future, on peut aussi s'assurer qu'il existe au moins
+un nombre donné de nœuds faisant tourner un hyperviseur.
 
 \section{Implication des personnes}
-XXX
 \subsection{Fabien Hermenier}
+Suite à une mauvaise compréhension de éléments du DOW, en partie due à
+une rédaction un peu hâtive de celui-ci, suite à une assignation tardive
+au projet, les heures passées avec l'encadrant n'ont pas été intégrées
+dans le DOW.
+
+Quelques entretiens avec Fabien à l'INRIA m'ont permis de me débloquer
+sur certains points, mais surtout d'établir des lignes directrices et
+des méthodes d'avancement. Enfin, une correspondance assez régulière
+par emails m'a permis d'avoir des retours sur le travail effectué, ce
+qui m'a fortement aidé à progresser.
 \subsection{Mathieu Bivert}
+Avec Fabien, nous avons définis un plan d'action pour effectuer le travail
+demandé, puis nous avons:
+\begin{itemize}
+	\item mis au clair les besoins concernant l'augmentation du modèle;
+	\item proposé une modélisation mathématiques du typage des nœuds et
+		des VMs;
+	\item enfin, proposé une implémentation en deux temps du typage.
+\end{itemize}
 
 \section{Synthèses des livraisons}
 Les livraisons sont effectués pour mercredi $7$ mars $2013$, ce qui n'est
 pas conforme au planning prévu. L'un des problèmes majeurs recontrés
 repose sur l'approche incrémentale utilisée. Bien que celle-ci permette
 de progresser facilement, elle a tendance à lier fortement les différentes
-composantes du projet. L'interdépendance entre les éléments des lots complique
-la possibilité de rendre au temps fixé dans le DOW les différents livrables.
+composantes du projet. L'interdépendance entre contraintes et implémentation
+du modèle limite la possibilité de rendre au temps fixé dans le DOW les
+différents livrables.
 
 Pour la même raison, la structure des livrables $D_2$ et $D_3$ n'est pas
 optimale : en effet, la majeure partie de l'implémentation du modèle décrit
 dans $D_2$ est à placer dans les contraintes présentes dans $D_3$. Ces
-problèmes n'avaient pas été envisagés dans le DOW.
+problèmes n'avaient pas été envisagés dans le DOW. Une solution aurait été
+de découper les rapports différement, par exemple décrire la partie théorique
+dans $D_2$ et l'implémentation dans $D_3$, ou encore fusionner les deux
+documents. Dans les deux cas, le DOW n'aurait pas été respecté.
+
+Enfin, des incohérences au sein du DOW rendent son interprétation difficile.
 
 \section{Suivi budgétaire}
 \subsection{Consommation du budget}
@@ -161,24 +187,50 @@ Globalement, le budget fixé a été respecté. Le projet était peut-être un
 peu trop ambitieux au vu du temps difficile à prévoir pour les cours et
 évènements para-scolaires.
 \section{Suivi des lots}
-XXX
+Cette section ne correspond pas à celle annoncée dans le DOW. En effet, des
+incohérences sur le découpage de projet rendent la partie difficilement
+utilisable. On se propose ici, de décrire les rendus plus que les lots
+prévus. La description du travail du DOW est toujours d'actualité.
+
+Une quinzaine d'heures de travail n'ont pas été consommée par rapport
+au budget de $304$ heures (environ $5$% du temps total) suite à une
+mauvaise compréhension de la date de fin, qui s'est avérer être deux
+jours plus tôt.
+
+\subsection{Management du projet}
+La planification du projet (DOW) ainsi que le rapport ci-présent sont
+rendus en temps, et ont pris environ un tiers du temps total passé sur le
+projet ($30\%$).
+\subsection{Ajout du typage}
+L'extension du modèle théorique a été relativement rapide, et a pris
+dans les $10\%$ du temps passé à travailler.
+\subsection{Implémentation des contraintes}
+L'implémentation a pris la plus grosse partie du temps (environ $60\%$),
+et n'est malheureusement pas complète : la validation des contraintes
+n'est pas toujours effectuée, et l'intégration du cas général pour le typage
+est incomplète.
+
+La section suivante illustre plus en détails les difficultées rencontrées
+pour cette partie, et propose une solution.
 \section{Synthèse et retour d'expérience}
 En ne prenant en compte que le projet, la gestion du temps était
 loin d'être optimale. Bien que la partie théorique soit assez facile
 à comprendre, sa mise en œuvre dans BtrPlace est bien plus difficile.
 La complexité de l'implémentation est à mon avis l'un des facteurs
 majeurs justifiant le temps passé à implémenter le modèle.
-Une solution à ce problème de complexité serait de ré-implémenter
-BtrPlace dans un langage plus adapté pour la programmation par
-contrainte (Prolog, Lisp, etc.), mais cela nécessite d'étudier le
-coût d'une telle ré-écriture. En effet, la nouvelle solution peut-être
-plus facile à comprendre et à étendre, mais elle peut aussi:
-\begin{enumerate}
-	\item être moins performante et plus difficilement optimisable;
-	\item nécessiter un temps d'implémentation pas forcément rentable
-		par rapport au temps pouvant être mis à étendre le code actuel
-		par une personne en ayant une conaissance approfondie.
-\end{enumerate}
+
+Une solution envisageable à ce problème et peu coûteuse en temps, serait 
+de décrire BtrPlace à l'aide de deux cartes:
+\begin{itemize}
+	\item une première de « haut niveau », présentant la structure
+		du logiciel, accompagnée d'exemples de bases et de quelques
+		options, permettant à un novice de savoir où il est et où il va;
+	\item une deuxième de « moyen niveau », qui explique comment le
+		modèle est généré, et comment coder quelques contraintes.
+\end{itemize}
+Une API de programation est déjà présente, et fait déjà office de
+carte « bas niveau ». Celle-ci n'est cependant pas suffisante pour
+prendre en main efficacement le logiciel.
 
 À l'heure actuelle, les ajouts en terme de code sont incomplets, mais:
 \begin{enumerate}
@@ -194,5 +246,26 @@ plus facile à comprendre et à étendre, mais elle peut aussi:
 		quantité de RAM utilisable, sur la puissance CPU ou encore
 		limite le nombre d'interface réseau, la quantité de RAM, etc.
 \end{enumerate}
+
+Au niveau des compétences, le projet m'a permis de revisiter
+certains éléments, tels que 
+\begin{itemize}
+	\item Java;
+	\item les tests unitaires pour la validation;
+	\item git comme gestionnaire de version;
+	\item la modélisation mathématiques
+	\item etc.
+\end{itemize}
+et d'en acquérir de nouvelles:
+\begin{itemize}
+	\item IDE (IntelliJ);
+	\item outil de déploiement (Maven);
+	\item framework Choco;
+	\item gestionnaire de ressources;
+	\item etc.
+\end{itemize}
+
+Du point de vue du management, j'ai appris qu'il me faut mieux gérer
+mon temps, notamment en essayant de mieux évaluer les évènements exogènes.
 
 \end{document}
