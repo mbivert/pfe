@@ -249,6 +249,28 @@ un nœud de même type, ie.:
 Cette contrainte doit être implémentée dans BtrPlace via Choco.
 
 \section{Implémentation}
+\subsection{Retypage}
+Afin de gérer le changement d'hyperviseur, une nouvelle action est requise.
+La classe \textit{Retype}\footnote{\url{https://github.com/Heaumer/pfe/blob/master/entropy-fh/src/main/java/entropy/plan/action/Retype.java}}, qui est
+une action de type \textit{Startup}, permet de retyper un nœud. 
+Successivement, elle
+\begin{enumerate}
+	\item créee une copie du nœud;
+	\item le supprime de la configuration;
+	\item change l'hyperviseur de la copie du nœud;
+	\item ajoute la copie dans la configuration.
+\end{enumerate}
+
+Un nouvel action model \textit{RetypeNodeActionModel}\footnote{\url{https://github.com/Heaumer/pfe/blob/master/entropy-fh/src/main/java/entropy/plan/choco/actionModel/RetypeNodeActionModel.java}}
+modèlise le changement de type au sein de choco, en ajoutant successivement
+une action de \textit{Shutdown} puis de \textit{Retype} pour éteindre et
+changer l'hyperviseur d'un nœud. Le constructeur de cet action model prends
+en paramètres, en plus du nœud à retyper et son nouveau type, le début de
+l'action d'éteignage du nœud, et le début du retypage.
+
+Enfin, l'implémentation de \textit{DefaultReconfigurationProblem} se charge
+d'instancier cet action model en cas de changement de type.
+
 \subsection{Cas particulier}
 \begin{verbatim}
 Interface: Platform({ nœud_i -> plateforme, nœud_j -> plateforme, …})
@@ -276,25 +298,24 @@ classe est testée\footnote{\url{https://github.com/Heaumer/pfe/blob/master/entr
 en suivant des use-cases définis par Fabien Hermenier.
 
 \subsection{Cas général}
+De même que pour le cas particulier, une nouvelle contrainte
+\textit{TypedPlatform}\footnote{\url{https://github.com/Heaumer/pfe/blob/master/entropy-fh/src/main/java/entropy/vjob/TypedPlatform.java}}
+est ajoutée. Le constructeur prends en argument un ensemble de nœuds
+à typer. Pour chaque nœud, la contrainte s'assure qu'au plus, un
+unique élément du vecteur contenant les plateformes possibles est non
+null. Pour ce faire, la classe \textit{Occurence} de choco est
+utilisée : 
 La documentation d'\textit{Occurence}:
 \begin{verbatim}
 public Occurrence(IntDomainVar[] vars,
                   int occval,
                   boolean onInf,
                   boolean onSup)
-
-    Constructor, API: should be used through the Problem.createOccurrence API Define
-an occurence constraint setting size{forall v in lvars | v = occval} <= or >= or = occVar
-assumes the occVar variable to be the last of the variables of the constraint:
-vars = [lvars | occVar] with lvars = list of variables for which the occurence of
-occval in their domain is constrained
-
-    Parameters:
-        occval - checking value
-        onInf - if true, constraint insures size{forall v in lvars | v = occval} <= occVar
-        onSup - if true, constraint insure size{forall v in lvars | v = occval} >= occVar
-
 \end{verbatim}
+Dans notre cas, le dernier élément de \textit{vars} contient le nombre
+minimum de \textit{occval}$=0$ devant être présents dans le reste du
+tableau \textit{vars[]}.
+Par manque de temps, cette classe n'est pas testée.
 
 \section{Validation}
 Les implémentations précèdentes sont validées pas des tests unitaires mettant
@@ -317,9 +338,10 @@ $h_1, h_2$ et $h_1$. Soient deux machines virtuelles $v_1$ et $v_2$ de
 types respectifs $h_1$ et $h_2$. Au début du processus de reconfiguration,
 les deux nœuds tournent sous $h_1$; $v_1$ tourne sur $n_1$ et $v_2$ est
 éteinte. À la fin, $n_1$ aura changé son type d'hyperviseur à $h_2$, et
-$v_2$ doit être allumée. (XXX implémentation incomplète).
+$v_2$ doit être allumée.
 
 \subsection{Cas général}
+Comme mentionné dans la section précèdente, cette classe n'a pas été testée.
 \newpage
 \selectlanguage{francais}
 \bibliographystyle{alpha}
