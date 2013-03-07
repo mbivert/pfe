@@ -1,0 +1,207 @@
+\documentclass{beamer}
+\usepackage{amsfonts}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{subfigure}
+
+\usetheme{Berkeley}
+\title{Placement constraints for a better QoS in clouds}
+\subtitle{Extending BtrPlace to support typing}
+\author[]{Mathieu Bivert\\Tutor : Fabien Hermenier}
+\institute{Polytech'Nice Sophia}
+\date{March $8$, $2013$}
+
+\begin{document}
+
+\begin{frame}{}
+\titlepage
+\end{frame}
+
+\begin{frame}{Map}
+\tableofcontents
+\end{frame}
+
+\section{Introduction}
+\subsection{Some vocabulary}
+\begin{frame}{Some vocabulary}
+% description just increase left margin…
+\begin{itemize}
+	\item{\textbf{Virtual Machine}}, hardware simulated in software
+	\item{\textbf{Hypervisor}}, software monitoring a set of virtual
+		machines
+	\item{\textbf{Node}}, physical server running an hypervisor
+	\item{\textbf{Cloud}}, set of physical servers running various
+		softwares, providing services to users
+	\item{\textbf{QoS}} (Quality Of Service), avaibility of the
+		services provided by a Cloud
+\end{itemize}
+\end{frame}
+
+\subsection{Virtualisation and Cloud}
+\begin{frame}{Clouds in business}
+Large firms delegates their IT infrastructure to specialized companies
+\begin{itemize}
+	\item Reduction of the costs (less hardware to buy and manage,
+		less software to write, etc.)
+	\item Augmentation of the QoS
+\end{itemize}
+However, by doing so, those firms:
+\begin{itemize}
+	\item Lose control over their data
+	\item Become dependent of another company
+\end{itemize}
+\end{frame}
+\begin{frame}{Different types of services}
+\begin{scriptsize}
+\begin{tabular}{c|c|c|c}
+	\textbf{Acronym} & \textbf{Service} \textbf{provided} & \textbf{Description} & \textbf{Exemple} \\
+	\hline
+	\hline
+	SaaS & Software & Accses to software &
+		Gmail\footnote{\url{https://gmail.com}} \\
+	\hline
+	PaaS & Platform & Software stack for development &
+		Google Apps\footnote{\url{https://www.google.com/enterprise/apps/business/}} \\
+	\hline
+	IaaS & Infrastructure & Access to physical ressources &
+		Amazon EC2\footnote{\url{https://aws.amazon.com/ec2/}} \\
+	\hline
+	DaaS & Data & Access to data&
+		Dropbox\footnote{\url{https://www.dropbox.com/}}
+\end{tabular}
+\end{scriptsize}
+\end{frame}
+\begin{frame}{Why virtualization in clouds?}
+Virtualization may augment QoS by allowing to:
+\begin{itemize}
+	\item Launch and stop services on the fly
+	\item Replicates easily VMs running those services
+	\item Facilitate administration
+	\item Somehow reduce security issue
+\end{itemize}
+Also, when QoS is non-critical, it can helps reducing energy
+consumption.
+\end{frame}
+\begin{frame}{How is it done?}
+Companies hosting clouds using virtualization pay licence to use
+hypervisor. Those licences contains restrictions on the usability
+of ressources, such as
+\begin{itemize}
+	\item CPU, RAM
+	\item number of virtual machines
+	\item number of NIC and other hardware components
+\end{itemize}
+
+Hypervisors come with software which helps manage \textbf{their} VMs.
+\end{frame}
+
+\subsection{BtrPlace, a placement manager}
+\begin{frame}{Description}
+BtrPlace is a software written in Java (GPL) by Fabien Hermenier
+(OASIS team). It extensively use the Choco framework (BSD) developped
+at the "École des mines de Nantes". Choco gives the programmer tools
+to build Java applications modeling
+CSP\footnote{Constraint Satisfaction Problem}, or using
+CP\footnote{Constraint Programming}.
+\end{frame}
+\begin{frame}{Goal}
+BtrPlace aims to solve the problem of distributing a set of VMs on
+a set of nodes efficiently, by following some constraints. The latters
+can be :
+\begin{itemize}
+	\item imposed by the hardware, such as available ressources
+	\item given by the user, following his needs (eg. replication
+		of VMs)
+	\item imposed by hypervisors licences
+\end{itemize}
+
+One may think of BtrPlace as a hypervisor's monitor.
+
+\end{frame}
+\begin{frame}{BtrPlace and similiar solutions}
+Actually, BtrPlace model is unique and is the only one who scales
+enough to be usable in real life.
+
+As its competitors, it doesn't support (yet) correctly the typing
+of nodes and VMs.
+
+\end{frame}
+\section{Adding typing in BtrPlace}
+\subsection{More vocabulary}
+\begin{frame}{More vocabulary}
+\begin{itemize}
+	\item{\textbf{Type}}, integer associated to each hypervisor
+	\item{\textbf{Deployment}}, operation of rebooting a node and
+		eventually changing its hypervisor
+	\item{\textbf{Reconfiguration}}, operation during which BtrPlace
+		change the placement of VMs on nodes following constraints
+	\item{\textbf{Slices}}, finite period of time representing
+		ressources usages. Two types of slices, distinguished by
+		using the ressources at the
+		\begin{itemize}
+			\item{\textbf{Consuming slice}} beginning of the
+				reconfiguration
+			\item{\textbf{Demanding slice}} end of the reconfiguration
+		\end{itemize}
+\end{itemize}
+\end{frame}
+\begin{frame}{Proceeding of the work}
+We worked incrementally by
+\begin{enumerate}
+	 \item modeling and implementing a special case of the typing
+	 \item modeling and implementing (partially) the general case
+	 \item implementing (partially) some constraints
+\end{enumerate}
+\end{frame}
+
+\subsection{Special case}
+\begin{frame}{Model}
+\end{frame}
+\begin{frame}{Code}
+\end{frame}
+
+\subsection{General case}
+\begin{frame}{Model}
+\end{frame}
+\begin{frame}{Code}
+\end{frame}
+
+\subsection{Additional constraints}
+\begin{frame}{MinPlatform}
+\end{frame}
+\begin{frame}{MaxVM}
+\end{frame}
+
+\begin{frame}{Why type is an integer?}
+\begin{itemize}
+	\item choco
+	\item solves an other problem
+\end{itemize}
+\end{frame}
+
+\section{Feedback}
+\subsection{Problems encountered}
+\begin{frame}{Timing management}
+\end{frame}
+
+\begin{frame}{Complexity of BtrPlace}
+\end{frame}
+
+\subsection{Incomplete work}
+\begin{frame}{What's missing?}
+\end{frame}
+
+\section{Future plans}
+\begin{frame}{Adding documentation to BtrPlace}
+\end{frame}
+
+\begin{frame}{Missing models and partial implementation}
+\end{frame}
+
+\begin{frame}{Possible usage of the typing}
+\end{frame}
+
+\end{document}
