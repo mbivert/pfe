@@ -89,13 +89,12 @@ can be :
 	\item imposed by hypervisors licences
 \end{itemize}
 \pause As it competitors, BtrPlace doesn't make the distinction
-between hypervisor, but as it was designed to be extensible, it should
-be reasonably easy to augment its model to support typing
+between different hypervisors, but as it was designed to be extensible,
+it should be reasonably easy to augment its model to support typing
 \end{frame}
 \section{Adding typing in BtrPlace}
-% exemple graphique de reconfiguration (supprimer slices)
-\subsection{More vocabulary}
-\begin{frame}{More vocabulary}
+\subsection{Modelisation in BtrPlace}
+\begin{frame}{Modelisation in BtrPlace}
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=.4]{imgs/config.eps}
@@ -146,10 +145,6 @@ There are two main methods in this class:
 \end{enumerate}
 \end{frame}
 
-% on supprime l'hypothèse
-% il faut que BtrPlace déduise le type des nœuds
-% on a le modèle (équation), mais pas une contrainte utilisateur
-% GlobalConstraint	
 \subsection{General case}
 \begin{frame}{Model}
 We delete the previous hypothesis : BtrPlace should deduce the new
