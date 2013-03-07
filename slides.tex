@@ -159,6 +159,17 @@ We worked incrementally by
 
 \subsection{Special case}
 \begin{frame}{Model}
+\textbf{Hypothesis}: we know which nodes are going to change their hypervisor,
+and the name of the new hypervisor.\\
+For such a node, placement is satisfied iff:
+\begin{itemize}
+	\item all the VMs on that node are moved elsewhere, before the deployment
+		starts
+	\item VMs for the new hypervisor type are migrated after the deployment
+		process
+\end{itemize}
+The placement is satisfied iff each VM of a type $t$ is placed on a node
+with the same type $t$.
 \end{frame}
 \begin{frame}{Code}
 \end{frame}
