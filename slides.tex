@@ -25,8 +25,8 @@
 \end{frame}
 
 \section{Introduction}
-\subsection{Some context}
-\begin{frame}{Some context}
+\subsection{Virtualized infrastructure}
+\begin{frame}{Virtualized infrastructure}
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=.4]{imgs/samplecloud.png}
@@ -62,7 +62,7 @@ However, by doing so, those firms:
 	\centering
 	\includegraphics[scale=.45]{imgs/cloud-pyramid.png}
 \end{figure}
-BtrPlace works at the Infrastructure level.
+%BtrPlace works at the Infrastructure level.
 \end{frame}
 
 \begin{frame}{How is it done?}
@@ -70,18 +70,18 @@ There are different kind  of hypervisor,\\
 \pause with different features,\\ % follow what the client want
 \pause and different licences; % limitations on the ressources usable
 
-Need for a software to manage at the Infrastructure level those
-different hypervisors, and provide services such as redundancy of
-services.
+Need for a software to manage at the Infrastructure level to place
+a set of virtual machines on a set of nodes. % to provide services (redundancy)
+\pause Would be usefull to teach this software about available hypervisor,
+their fonctionnality, etc.
 \end{frame}
 
 \subsection{BtrPlace, a placement manager}
 % détails, à supprimer (un item)
 \begin{frame}{BtrPlace}
-BtrPlace is a software written  by Fabien Hermenier (OASIS team).\\
-\pause It aims to solve the problem of distributing a set of VMs on
-a set of nodes efficiently, by following some constraints. The latters
-can be :
+BtrPlace is a software that aimse to solve the problem of distributing a set of VMs on
+a set of nodes efficiently, by following some constraints, while
+being flexible. The constraints can be :
 \begin{itemize}
 	\item imposed by the hardware, such as available ressources
 	\item given by the user, following his needs (eg. replication
@@ -89,8 +89,8 @@ can be :
 	\item imposed by hypervisors licences
 \end{itemize}
 \pause As it competitors, BtrPlace doesn't make the distinction
-between different hypervisors, but as it was designed to be extensible,
-it should be reasonably easy to augment its model to support typing
+between different hypervisors. but designed to be extensible,
+so it should be reasonably easy to augment it to support typing.
 \end{frame}
 \section{Adding typing in BtrPlace}
 \subsection{Modelisation in BtrPlace}
@@ -147,8 +147,7 @@ There are two main methods in this class:
 
 \subsection{General case}
 \begin{frame}{Model}
-We delete the previous hypothesis : BtrPlace should deduce the new
-type of the nodes.\\
+BtrPlace should now deduce the new type of the nodes.\\
 We add a vector $v_i$ to each node. $v_i[t]$ represents the number
 of VMs running under the hypervisor $t$.
 \pause The placement is satisfied iff:
@@ -167,13 +166,14 @@ hypervisor $type$.
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=.4]{imgs/samplecloud.png}
-	\caption{Here, BtrPlace could ensure at least two nodes run ESX Server}
+	\caption{$MinPlatform((N1,N2,N3), "ESX", 2)$}
 \end{figure}
 \end{frame}
 \begin{frame}{MaxVM}
 $MaxVM(nodes, type, n)$ ensures at most $n$ nodes runs hypervisor $type$.\\
 \pause Other PFE project proposed by Fabien in response to licence limitations
 (VMWare notably) is easily implemented because typing is done with integer.
+% XXX missing picture
 \end{frame}
 
 \section{Management}
@@ -182,23 +182,28 @@ $MaxVM(nodes, type, n)$ ensures at most $n$ nodes runs hypervisor $type$.\\
 \begin{figure}[!ht]
 	\includegraphics[scale=.2]{imgs/gantt2.png}
 \end{figure}
-\textbf{Problem}: not enough time spent on timing the work; incoherence
-in the DOW observed at the end of the project, leading to badly structured
-reports.\\
-\pause\textbf{Possible Solution} : spend more time on timing and structuring the
-work rather than on writing others parts of the DOW. Try to evaluate better
-exogenous elements (mainly other scholar works).
+\textbf{Problem}:
+\begin{itemize}
+	\item not enough time spent on timing the work; 
+	\item incoherence in the DOW observed too late, % at the end of the project;
+	% leading to badly structured reports.
+\end{itemize}
+\pause\textbf{Possible Solution}:
+\begin{itemize}
+	\item spend more time on timing and structuring the work % rather than others parts of DOW
+	\item try to evaluate better exogenous elements (mainly other scholar works).
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Complexity of BtrPlace}
 \textbf{Problem} : only documentation available : API Java.
 Inadequate and insufficient to understand fully BtrPlace.\\
-\pause\textbf{Possible solution} : add two more layers of documentation.
+\pause\textbf{Possible solution} : add two layers of documentation.
 \begin{enumerate}
 	\item one describing the general structure of the software, with
 		some example
-	\item one more precise than the latter, containing information about
-		model generation and how to write simple constraints
+	\item and an other describing model generation and how to
+		write simple constraints
 \end{enumerate}
 \end{frame}
 
@@ -212,15 +217,15 @@ Inadequate and insufficient to understand fully BtrPlace.\\
 	\hline
 	Modelisation of the special case & done \\
 	\hline
-	Implementation of the special case & partial (insufficient testing) \\
+	Implementation of the special case & partial \\ % (insufficient testing) 
 	\hline
 	Modelisation of the general case & done \\
 	\hline
-	Implementation of the general case & partial (not at the right place) \\
+	Implementation of the general case & partial \\ %(not at the right place) 
 	\hline
-	Modelisation of new constraints & not done (easy and fast to do) \\
+	Modelisation of new constraints & not done \\ %(easy and fast to do)
 	\hline
-	Implementation of new constraints & mostly done (lack of printer/getters, testing) \\
+	Implementation of new constraints & mostly done \\ %(lack of printer/getters, testing)
 	\hline
 \end{tabular}
 \end{scriptsize}
@@ -237,13 +242,15 @@ During this project, I learnt and revisited:
 	\item Git
 \end{itemize}
 \end{frame}
-\begin{frame}{How to improve what has been done}
-To be complete, one may add a few more test for the special case.\\
-\pause The general case, should be implemented at the right place, and not
-as a user constraint, and tested correctly.\\
-\pause Models for the constraints \textit{MinPlatform} and \textit{MaxVM}
-should be defined, and implementations revisited following the established
-models. 
+\begin{frame}{How to improve what has been done and time estimation}
+\begin{itemize}
+	\item add more test for the special case (2 or 3 hours)
+	\item implement general case at the right place, not
+		as a user constraint, and tested (difficult to estimate)
+	\item describe underlying models for constraints \textit{MinPlatform}
+		and \textit{MaxVM}; complete and revised the implementation
+		following the new models (1 or 2 hours)
+\end{itemize}
 \end{frame}
 \begin{frame}{Possible evolutions thanks to typing}
 Hypervisors licences and features can be pretty differents:
