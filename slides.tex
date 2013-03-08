@@ -50,7 +50,7 @@ Large firms delegates their IT infrastructure to specialized companies
 		less software to write, etc.)
 	\item Augmentation of the QoS
 \end{itemize}
-However, by doing so, those firms:
+ However, by doing so, those firms:
 \begin{itemize}
 	\item Lose control over their data
 	\item Become dependent of another company
@@ -58,39 +58,60 @@ However, by doing so, those firms:
 \end{frame}
 
 \begin{frame}{Different types of services}
+\begin{center}
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[scale=.45]{imgs/cloud-pyramid.png}
 \end{figure}
-%BtrPlace works at the Infrastructure level.
+
+\begin{figure}[!htb]
+\minipage{0.32\textwidth}
+  \includegraphics[width=50pt]{imgs/gmail.png}
+  \caption{Gmail}
+\endminipage\hfill
+\minipage{0.32\textwidth}
+  \includegraphics[width=50pt]{imgs/dropbox.png}
+  \caption{Dropbox}
+\endminipage\hfill
+\minipage{0.32\textwidth}%
+  \includegraphics[width=50pt]{imgs/amazon.png}
+  \caption{Amazon EC2}
+\endminipage
+\end{figure}
+\end{center}
 \end{frame}
 
 \begin{frame}{How is it done?}
 There are different kind  of hypervisor,\\
-\pause with different features,\\ % follow what the client want
-\pause and different licences; % limitations on the ressources usable
+ with different features,\\ % follow what the client want
+ and different licences; % limitations on the ressources usable
 
-Need for a software to manage at the Infrastructure level to place
-a set of virtual machines on a set of nodes. % to provide services (redundancy)
-\pause Would be usefull to teach this software about available hypervisor,
+Need for a software at the Infrastructure level to place a set of VMs
+on a set of nodes.
+ Would be usefull to teach this software about available hypervisors,
 their fonctionnality, etc.
 \end{frame}
 
 \subsection{BtrPlace, a placement manager}
 % détails, à supprimer (un item)
 \begin{frame}{BtrPlace}
-BtrPlace is a software that aimse to solve the problem of distributing a set of VMs on
-a set of nodes efficiently, by following some constraints, while
-being flexible. The constraints can be :
+BtrPlace is a flexible software that aims
+\begin{itemize}
+	\item to solve the problem of distributing a set of VMs on a set of
+		nodes
+	\item to be efficient and moreover extensible
+\end{itemize}
+Constraints:
 \begin{itemize}
 	\item imposed by the hardware, such as available ressources
 	\item given by the user, following his needs (eg. replication
 		of VMs)
 	\item imposed by hypervisors licences
 \end{itemize}
-\pause As it competitors, BtrPlace doesn't make the distinction
-between different hypervisors. but designed to be extensible,
-so it should be reasonably easy to augment it to support typing.
+ As it competitors, doesn't make the distinction
+between hypervisors.\\
+however designed to be extensible $\Rightarrow$ should be reasonably
+easy to augment it to support typing.
 \end{frame}
 \section{Adding typing in BtrPlace}
 \subsection{Modelisation in BtrPlace}
@@ -120,14 +141,14 @@ We worked incrementally by
 \begin{frame}{Model}
 \textbf{Hypothesis}: we know which nodes are going to change their hypervisor,
 and the name of the new hypervisor.\\
-\pause For such a node, the following constraints must be satisfied:
+ For such a node, the following constraints must be satisfied:
 \[
 	P(c) = n \Rightarrow c^\mathrm{ed} \leq D^\mathrm{st}
 \]
 \[
 	P(d) = n \Rightarrow d^\mathrm{st} \geq D^\mathrm{ed}
 \]
-\pause Placement satisfied iff:
+ Placement satisfied iff:
 \[
 	P(v) = n \Rightarrow T(n) = T(v)	
 \]
@@ -150,7 +171,7 @@ There are two main methods in this class:
 BtrPlace should now deduce the new type of the nodes.\\
 We add a vector $v_i$ to each node. $v_i[t]$ represents the number
 of VMs running under the hypervisor $t$.
-\pause The placement is satisfied iff:
+ The placement is satisfied iff:
 \[
 	(\exists ! x \in v_i), x \neq 0
 \]
@@ -171,9 +192,12 @@ hypervisor $type$.
 \end{frame}
 \begin{frame}{MaxVM}
 $MaxVM(nodes, type, n)$ ensures at most $n$ nodes runs hypervisor $type$.\\
-\pause Other PFE project proposed by Fabien in response to licence limitations
+ Other PFE project proposed by Fabien in response to licence limitations
 (VMWare notably) is easily implemented because typing is done with integer.
-% XXX missing picture
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=.3]{imgs/maxvm.png}
+\end{figure}
 \end{frame}
 
 \section{Management}
@@ -188,7 +212,7 @@ $MaxVM(nodes, type, n)$ ensures at most $n$ nodes runs hypervisor $type$.\\
 	\item incoherence in the DOW observed too late, % at the end of the project;
 	% leading to badly structured reports.
 \end{itemize}
-\pause\textbf{Possible Solution}:
+\textbf{Possible Solution}:
 \begin{itemize}
 	\item spend more time on timing and structuring the work % rather than others parts of DOW
 	\item try to evaluate better exogenous elements (mainly other scholar works).
@@ -198,7 +222,7 @@ $MaxVM(nodes, type, n)$ ensures at most $n$ nodes runs hypervisor $type$.\\
 \begin{frame}{Complexity of BtrPlace}
 \textbf{Problem} : only documentation available : API Java.
 Inadequate and insufficient to understand fully BtrPlace.\\
-\pause\textbf{Possible solution} : add two layers of documentation.
+\textbf{Possible solution} : add two layers of documentation.
 \begin{enumerate}
 	\item one describing the general structure of the software, with
 		some example
@@ -246,7 +270,7 @@ During this project, I learnt and revisited:
 \begin{itemize}
 	\item add more test for the special case (2 or 3 hours)
 	\item implement general case at the right place, not
-		as a user constraint, and tested (difficult to estimate)
+		as a user constraint, and test it (difficult to estimate)
 	\item describe underlying models for constraints \textit{MinPlatform}
 		and \textit{MaxVM}; complete and revised the implementation
 		following the new models (1 or 2 hours)
